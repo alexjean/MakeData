@@ -78,25 +78,43 @@ class AnalogWorld(World):
     def calcBetaLabel(self):
         w, h = self.div4World.Width, self.div4World.Height
         w2, h2 = w * 2, h * 2
-        evaluate = np.zeros([w2, h2], np.int16)
+        val = np.zeros([w2, h2], np.int16)
         for x in range(w2 - 1):
             if x % 10 == 0:
                 print(w2 - x, end=' ', flush=True)
             for y in range(h2 - 1):
                 beta = Beta.BetaCode()
                 x2, y2 = x * 2, y * 2
-                score = beta.Estimate(self.Data[x2:x2 + 4, y2:y2 + 4])
-                evaluate[x, y] = score
+                val[x, y] = beta.Estimate(self.Data[x2:x2 + 4, y2:y2 + 4])
         print("\ncalcBetaLabel successed!\n")
         for i in range(self.Width):
             for j in range(self.Height):
                 if self.Data[i, j] > 40:
                     self.Data[i, j] = 40
+        val1 = np.zeros((w2, h2), np.int16)
+        # 取4格的Max
+        '''
+        for x in range(w2-1):
+            for y in range(h2-1):
+                if val[x, y] > val[x, y+1]:
+                    x1, y1 = x, y
+                else:
+                    x1, y1 = x, y+1
+                if val[x+1, y] > val[x+1, y+1]:
+                    x2, y2 = x+1, y
+                else:
+                    x2, y2 = x+1, y + 1
+                if val[x1, y1] > val[x2, y2]:
+                    if val[x1, y1] > 4:
+                        val1[x1, y1] = val[x1, y1]
+                else:
+                    if val[x2, y2] > 4:
+                        val1[x2, y2] = val[x2, y2]
+        '''
         for x in range(w2):
             for y in range(h2):
-                if evaluate[x, y] > 3:
-                    x2, y2 = x * 2, y * 2
-                    self.Data[x2, y2] = 254
+                if val[x, y]:
+                    self.Data[x * 2, y * 2] = 254
         self.repaint()
 
     def calcDiv4(self):
