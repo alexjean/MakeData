@@ -3,12 +3,14 @@
 # @Author  : AlexJean
 # 此種編碼失敗了 要保存的是邊線角度
 # 不是SuperResolution或灰度面積最小誤差
-from typing import Any, Union
-
 import numpy as np
 
 
 class AlphaCode:
+    """ 要制作的TrainData output
+        由人工畫的 4n*4n 降為 dim n*n (SuperResolution->) 2n*2n
+        通過原大點的邊界及其1/2,  編碼為下方Table的25種直線
+    """
     Dtype = np.int16
     TableSize = 26
     Table = np.empty((TableSize, 4, 4), Dtype)

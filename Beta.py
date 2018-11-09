@@ -5,6 +5,12 @@ import numpy as np
 
 
 class BetaCode:
+    """
+    要制作的TrainData output
+    為 dim n*n  SuperResolution-> 2n*2n
+    用黑白相鄰點找出黑白邊界的Pixels list
+    以便下一步求斜率或...
+    """
     def __init__(self):
         self.whiteCount, self.blackCount = 0, 0
         self.marked = np.zeros((4, 4), bool)
