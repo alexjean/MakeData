@@ -7,15 +7,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 
 
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __add__(self, obj):
-        return Point(self.x + obj.x, self.y + obj.y)
-
-
 class World(QWidget):
     def __init__(self, view, w, h, data=None):
         super().__init__(view, Qt.Widget)

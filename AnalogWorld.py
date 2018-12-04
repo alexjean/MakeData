@@ -6,6 +6,7 @@ import numpy as np
 from World import World
 from Alpha import AlphaCode
 import Beta
+from Gama import GameCode
 
 
 class Div4World(World):
@@ -116,6 +117,14 @@ class AnalogWorld(World):
                 if val[x, y]:
                     self.Data[x * 2, y * 2] = 254
         self.repaint()
+
+    def calcGamaLabel(self):
+        w4, h4 = self.div4World.Width * 4, self.div4World.Height *4
+        gama = GameCode(w4, h4)
+        gama.getEdgeList(self.Data)
+        gama.countEdgeToDiv4World()
+
+
 
     def calcDiv4(self):
         w = self.div4World.Width

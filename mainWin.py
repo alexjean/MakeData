@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 from Ui_mainWin import *
 from DigiWorld import *
 from AnalogWorld import *
-from World import Point
+from Point import Point
 import numpy as np
 
 
