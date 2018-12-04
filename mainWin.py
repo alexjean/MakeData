@@ -47,7 +47,8 @@ class Form(Ui_Dialog, QWidget):
 
     def calcTrainLabel(self):
         #self.world.calcAlphaLabel()
-        self.world.calcBetaLabel()
+        #self.world.calcBetaLabel()
+        self.world.calcGamaLabel(self.loadedWorld.Data)    # 算出來的TtrainData填到loadedWorld.Data驗証
 
     def clearWorld(self):
         self.world.clearWorld()

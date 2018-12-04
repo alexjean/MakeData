@@ -64,3 +64,14 @@ class AlphaCode:
                 candiate = i
                 errorMin = errorNow
         return candiate
+
+    @staticmethod
+    def isEdge(direction, me, other):
+        if me == other:
+            return False
+        if me == AlphaCode.BlackPlate and other == AlphaCode.WhitePlate:
+            return True
+        elif me == AlphaCode.WhitePlate and other == AlphaCode.BlackPlate:
+            return True
+        # 不是連接色, 要移半格精度計算
+        return False

@@ -6,7 +6,7 @@ import numpy as np
 from World import World
 from Alpha import AlphaCode
 import Beta
-from Gama import GameCode
+from Gama import GamaCode
 
 
 class Div4World(World):
@@ -20,17 +20,6 @@ class AnalogWorld(World):
         super().__init__(viewLarge, w * 4, h * 4)
         self.div4World = Div4World(view, w, h)
         print("Width%s Height%s world%s created!" % (self.Width, self.Height, self))
-
-    @staticmethod
-    def isAlphaEdge(direction, me, other):
-        if me == other:
-            return False
-        if me == AlphaCode.BlackPlate and other == AlphaCode.WhitePlate:
-            return True
-        elif me == AlphaCode.WhitePlate and other == AlphaCode.BlackPlate:
-            return True
-        # 不是連接色, 要移半格精度計算
-        return False
 
     def calcAlphaLabel(self):
         w = self.div4World.Width
@@ -62,13 +51,13 @@ class AnalogWorld(World):
                     down = tempLabel[x, y + 1]
                     left = tempLabel[x - 1, y]
                     right = tempLabel[x + 1, y]
-                    if self.isAlphaEdge(DirUp, c, up):
+                    if AlphaCode.isEdge(DirUp, c, up):
                         code |= DirUp
-                    if self.isAlphaEdge(DirDown, c, down):
+                    if AlphaCode.isEdge(DirDown, c, down):
                         code |= DirDown
-                    if self.isAlphaEdge(DirLeft, c, left):
+                    if AlphaCode.isEdge(DirLeft, c, left):
                         code |= DirLeft
-                    if self.isAlphaEdge(DirRight, c, right):
+                    if AlphaCode.isEdge(DirRight, c, right):
                         code |= DirRight
                     if code == 0:
                         self.div4World.trainLabel[x, y] = c
@@ -118,13 +107,16 @@ class AnalogWorld(World):
                     self.Data[x * 2, y * 2] = 254
         self.repaint()
 
-    def calcGamaLabel(self):
-        w4, h4 = self.div4World.Width * 4, self.div4World.Height *4
-        gama = GameCode(w4, h4)
+    def calcGamaLabel(self, valueData):
+        w, h = self.div4World.Width, self.div4World.Height
+        gama = GamaCode(w * 4, h * 4)
         gama.getEdgeList(self.Data)
-        gama.countEdgeToDiv4World()
-
-
+        for x in range(w):
+            if x % 10 == 0:
+                print(w - x, end=' ', flush=True)
+            for y in range(h):
+                valueData[x, y] = gama.valueEdge(x * 4, y * 4) * 10
+        print("\nvalueEdge　completed!")
 
     def calcDiv4(self):
         w = self.div4World.Width
