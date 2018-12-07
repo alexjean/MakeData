@@ -110,15 +110,11 @@ class AnalogWorld(World):
     def calcGamaLabel(self, world):
         w, h = self.div4World.Width, self.div4World.Height
         gama = GamaCode(w * 4, h * 4)
-        gama.getEdgeList(self.Data)
-        data = world.Data
-        for x in range(w):
-            if x % 10 == 0:
-                print(w - x, end=' ', flush=True)
-            for y in range(h):
-                data[x, y] = gama.valueEdge(x * 4, y * 4) * 10
-        print("\nvalueEdge　completed!")
+        gama.getEdgePoint(self.Data)
+        gama.valueDiv4Map(world.Data)
         world.repaint()
+        gama.valueStride2Map()
+
 
 
     def calcDiv4(self):

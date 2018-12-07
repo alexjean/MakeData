@@ -8,7 +8,8 @@ from enum import Enum
 class GamaCode:
     """
     要制作的TrainData output
-    改為 每個點一個Vector, 強度為梯度, 方向0...7
+    改為 每個點一個 強度 (梯度?)  offset ( 0> 1\ 2V 3/ ) <= stride2 shift
+    鄰居8點加自己投票定,本'井字'最sharp offset. 但offset只用於本點
     暫不處理SuperResolution, 能力不足
     """
     Black = 1
@@ -20,7 +21,7 @@ class GamaCode:
         self.Wid = w
         self.Hei = h
 
-    def getEdgeList(self, data):
+    def getEdgePoint(self, data):
         da = (np.array(data) > 127)  # 把 0- 127 黑False   128-254白 True
         for x in range(1, self.Wid):
             if x % 10 == 0:
@@ -40,7 +41,7 @@ class GamaCode:
             self.markEdge(c, 0, 0)
             self.checkEdge(c, down, 0, 1)
             self.checkEdge(c, right, 1, 0)
-        print('  end of getEdgeList')
+        print('\nend of getEdgeList')
         return
 
     def markEdge(self, c, x, y):
@@ -70,5 +71,28 @@ class GamaCode:
         if white > black:
             return white + black * 2
         return black + white * 2
+
+    def valueDiv4Map(self, data):
+        w, h = self.Wid // 4, self.Hei // 4
+        for x in range(w):
+            if x % 20 == 0:
+                print(w - x, end=' ', flush=True)
+            for y in range(h):
+                data[x, y] = self.valueEdge(x * 4, y * 4) * 10
+        print("\nvalueDive4Map　completed!")
+
+    def valueStride2Map(self):
+        w2 = self.Wid // 2 - 1
+        h2 = self.Hei // 2 - 1
+        data = np.zeros((w2, h2), np.int16)
+        for x in range(0, w2, 2):
+            if x % 20 == 0:
+                print(w2 - x, end=' ', flush=True)
+            for y in range(0, h2, 2):
+                data[x, y] = self.valueEdge(x * 2, y * 2) * 10
+        print("\nvalueStride2Map　completed!")
+
+
+
 
 
