@@ -20,6 +20,7 @@ class GamaCode:
         self.marked = np.zeros((w, h), np.uint8)
         self.Wid = w
         self.Hei = h
+        # below variables  for evaluateStride2Map
         self.W2 = w // 2 - 1
         self.H2 = h // 2 - 1
         self.stride2 = np.zeros((self.W2, self.H2), np.int16)
@@ -62,8 +63,8 @@ class GamaCode:
 
     def valueEdge(self, x, y):
         white, black = 0, 0
-        for x1 in range(x, x+4):
-            for y1 in range(y, y+4):
+        for x1 in range(x, x + 4):
+            for y1 in range(y, y + 4):
                 c = self.marked[x1, y1]
                 if c == GamaCode.NotEdge:
                     continue
@@ -75,7 +76,7 @@ class GamaCode:
             return white + black * 2
         return black + white * 2
 
-    def valueDiv4Map(self, data):
+    def evaluateDiv4Map(self, data):
         w, h = self.Wid // 4, self.Hei // 4
         for x in range(w):
             if x % 20 == 0:
@@ -84,16 +85,40 @@ class GamaCode:
                 data[x, y] = self.valueEdge(x * 4, y * 4) * 10
         print("\nvalueDive4Map　completed!")
 
-    def valueStride2Map(self):
+    def evaluateStride2Map(self):
         w2, h2 = self.W2, self.H2
-        for x in range(0, w2, 2):
+        for x in range(0, w2):
             if x % 20 == 0:
                 print(w2 - x, end=' ', flush=True)
-            for y in range(0, h2, 2):
+            for y in range(0, h2):
                 self.stride2[x, y] = self.valueEdge(x * 2, y * 2) * 10
         print("\nvalueStride2Map　completed!")
 
+    def evaluateSmartDiv4Map(self, stride2world):
+        self.evaluateStride2Map()      # data put in self.stride2
+        w, h = self.Wid // 4, self.Hei // 4
+        smartData = np.zeros((w, h), np.int16)
+        for x in range(1, w):
+            if x % 20 == 0:
+                print(w - x, end=' ', flush=True)
+            for y in range(1, h):
+                self.maxContrast(x * 2, y * 2)
 
+    def maxContrast(self, x2, y2):
+        direction = [[0, 0], [0, 1], [1, 1], [0, 1], [-1, 0]]
+        maxVal, maxCount, count = 0, 0, 0
+        for di in direction:
+            x, y = x2+di[0], y2 + di[1]
+            val = self.contrast(x, y)
+            if val > maxVal:
+                maxVal = val
+                maxCount = count
+            count += 1
+        return maxCount
 
-
-
+    def contrast(self, x, y):
+        v = self.stride2
+        val = v[x - 1, y] + v[x, y] + v[x + 1, y]
+        val += v[x - 1, y - 1] + v[x, y - 1] + v[x + 1, y - 1]
+        val += v[x - 1, y + 1] + v[x, y + 1] + v[x + 1, y + 1]
+        return val

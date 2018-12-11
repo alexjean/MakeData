@@ -8,6 +8,7 @@ from DigiWorld import *
 from AnalogWorld import *
 from Point import Point
 import numpy as np
+from World import World
 
 
 class Form(Ui_Dialog, QWidget):
@@ -17,14 +18,18 @@ class Form(Ui_Dialog, QWidget):
         w = 200
         h = 200
         self.view.resize(w + 4, h + 4)
-        self.view1.move(self.view.x(), self.view.y() + self.view.height() + 1)
+        self.view1.move(self.view.x() + w + 4, self.view.y())
         self.view1.resize(w + 4, h + 4)
-        self.viewLarge.resize(w * 4 + 4, h * 4 + 4)
-        self.viewLarge.move(self.view.x() + w + 8, self.view.y())
+        self.view2.move(self.view.x()+2, self.view.y()+self.view.height() + 4)
+        self.view2.resize(w*2 + 4, h*2 + 4)
+        self.viewLarge.resize(w*4 + 4, h*4 + 4)
+        self.viewLarge.move(self.view1.x() + w + 8, self.view.y())
+
         self.world = AnalogWorld(self.view, self.viewLarge, w, h)
         self.loadedWorld = Div4World(self.view1, w, h)   # 給 loadData做檢查
         #self.world = DigiWorld(self.view, self.view1, self.viewLarge, w, h)
         self.loadedData = None
+        self.stride2World = World(self.view2, w*2, h*2)
 
     def doLine(self):
         a = Point(0, 0)
@@ -48,7 +53,7 @@ class Form(Ui_Dialog, QWidget):
     def calcTrainLabel(self):
         #self.world.calcAlphaLabel()
         #self.world.calcBetaLabel()
-        self.world.calcGamaLabel(self.loadedWorld)    # 算出來的TtrainData填到loadedWorld.Data驗証
+        self.world.calcGamaLabel(self.loadedWorld, self.stride2World)    # 算出來的TtrainData填到loadedWorld.Data驗証
 
     def clearWorld(self):
         self.world.clearWorld()
