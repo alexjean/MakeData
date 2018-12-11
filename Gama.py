@@ -20,6 +20,9 @@ class GamaCode:
         self.marked = np.zeros((w, h), np.uint8)
         self.Wid = w
         self.Hei = h
+        self.W2 = w // 2 - 1
+        self.H2 = h // 2 - 1
+        self.stride2 = np.zeros((self.W2, self.H2), np.int16)
 
     def getEdgePoint(self, data):
         da = (np.array(data) > 127)  # 把 0- 127 黑False   128-254白 True
@@ -82,14 +85,12 @@ class GamaCode:
         print("\nvalueDive4Map　completed!")
 
     def valueStride2Map(self):
-        w2 = self.Wid // 2 - 1
-        h2 = self.Hei // 2 - 1
-        data = np.zeros((w2, h2), np.int16)
+        w2, h2 = self.W2, self.H2
         for x in range(0, w2, 2):
             if x % 20 == 0:
                 print(w2 - x, end=' ', flush=True)
             for y in range(0, h2, 2):
-                data[x, y] = self.valueEdge(x * 2, y * 2) * 10
+                self.stride2[x, y] = self.valueEdge(x * 2, y * 2) * 10
         print("\nvalueStride2Map　completed!")
 
 
