@@ -102,10 +102,10 @@ class GaCo:
         print("Begin fill stride2world "+'='*42)
         w, h = self.Wid // 4, self.Hei // 4
         data = stride2world.Data
-        for x in range(1, w-1):
+        for x in range(1, w-2):
             if x % 10 == 0:
                 print(w - x, end=' ', flush=True)
-            for y in range(1, h-1):
+            for y in range(1, h-2):
                 x2, y2 = x * 2, y * 2
                 di = self.maxContrast(x2, y2)
                 x2 += di[0]
@@ -128,7 +128,7 @@ class GaCo:
     # x,y 算二次, 加其他8方向,湊成10
     def contrast(self, x, y):
         v = self.stride2
-        direction = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
+        direction = [[2, 0], [2, 2], [0, 2], [-2, 2], [-2, 0], [-2, -2], [0, -2], [2, -2]]
         u = v[x, y] * 2
         for di in direction:
             u += v[x + di[0], y + di[1]]
