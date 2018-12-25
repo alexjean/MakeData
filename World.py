@@ -13,7 +13,7 @@ class World(QWidget):
         self.Width = w
         self.Height = h
         if data is None:
-            self.Data = np.zeros([w, h], np.int16)
+            self.Data = np.zeros([w, h], np.int32)
         else:
             self.Data = data
         self.resize(w, h)

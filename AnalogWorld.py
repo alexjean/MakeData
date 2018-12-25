@@ -6,7 +6,7 @@ import numpy as np
 from World import World
 from Alpha import AlphaCode
 import Beta
-from Gama import GamaCode
+from Gama import GaCo
 
 
 class Div4World(World):
@@ -109,7 +109,7 @@ class AnalogWorld(World):
 
     def calcGamaLabel(self, world, stride2World):
         w, h = self.div4World.Width, self.div4World.Height
-        gama = GamaCode(w * 4, h * 4)
+        gama = GaCo(w * 4, h * 4)
         gama.getEdgePoint(self.Data)
         gama.evaluateDiv4Map(world.Data)
         world.repaint()
