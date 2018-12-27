@@ -26,10 +26,14 @@ class World(QWidget):
         qp.end()
 
     def drawScreen(self, qp):
+        blank = QColor(0, 0, 0)
         for x in range(self.Width):
             for y in range(self.Height):
                 c = self.Data[x, y]
-                qp.setPen(QColor(c, c, c))
+                if c <= 0:
+                    qp.setPen(blank)
+                else:
+                    qp.setPen(QColor(c, c, c))
                 qp.drawPoint(x, y)
 
     def drawLine(self, p1, p2):

@@ -107,21 +107,26 @@ class GaCo:
                 print(w - x, end=' ', flush=True)
             for y in range(1, h-2):
                 x2, y2 = x * 2, y * 2
-                di = self.maxContrast(x2, y2)
-                x2 += di[0]
-                y2 += di[1]
-                data[x2, y2] = self.stride2[x2, y2] * 10    # 要顯示在Stride2Wold
+                di = self.maxContrast(x2, y2, data)
+                if di[0] != 0 or di[1] != 0:                    # 如果在原位沒偏移,就擠不到鄰居
+                    x2 += di[0]
+                    y2 += di[1]
+                    data[x2 + 1, y2] = data[x2, y2 + 1] = -1    # 用負數代表空乏禁止 借用stride2world.Data來放
+                    data[x2 + 1, y2 + 1] = -1
+                data[x2, y2] = self.stride2[x2, y2] * 10        # 要顯示在Stride2Wold
+
         print("\ncompleted!")
         stride2world.repaint()
 
-    def maxContrast(self, x2, y2):
+    def maxContrast(self, x2, y2, data):
         direction = [[0, 0], [1, 0], [1, 1], [0, 1]]
-        maxVar, maxI, i = 0, 0, 0
+        maxVar, maxI, i = -1, 0, 0
         for di in direction:
-            var = self.contrast(x2+di[0], y2 + di[1])
-            if var > maxVar:
-                maxVar = var
-                maxI = i
+            x, y = x2 + di[0], y2 + di[1]
+            if data[x, y] == 0:        # 負數代表己經被禁止了
+                var = self.contrast(x, y)
+                if var > maxVar:
+                    maxVar, maxI = var, i
             i += 1
         return direction[maxI]
 

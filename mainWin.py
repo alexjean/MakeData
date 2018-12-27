@@ -15,6 +15,7 @@ class Form(Ui_Dialog, QWidget):
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
         self.setupUi(self)
+        self.move(450, 40)
         w = 200
         h = 200
         self.view.resize(w + 4, h + 4)
