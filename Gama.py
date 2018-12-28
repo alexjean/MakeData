@@ -102,24 +102,23 @@ class GaCo:
         print("Begin fill stride2world "+'='*42)
         w, h = self.Wid // 4, self.Hei // 4
         data = stride2world.Data
-        for x in range(1, w-2):
+        for x in range(2, w-2):
             if x % 10 == 0:
                 print(w - x, end=' ', flush=True)
-            for y in range(1, h-2):
+            for y in range(2, h-2):
                 x2, y2 = x * 2, y * 2
                 di = self.maxContrast(x2, y2, data)
-                if di[0] != 0 or di[1] != 0:                    # 如果在原位沒偏移,就擠不到鄰居
-                    x2 += di[0]
-                    y2 += di[1]
-                    data[x2 + 1, y2] = data[x2, y2 + 1] = -1    # 用負數代表空乏禁止 借用stride2world.Data來放
-                    data[x2 + 1, y2 + 1] = -1
+                x2 += di[0]
+                y2 += di[1]
+                data[x2 + 1, y2] = data[x2, y2 + 1] = -1    # 用負數代表空乏禁止 借用stride2world.Data來放
+                data[x2 + 1, y2 + 1] = -1
                 data[x2, y2] = self.stride2[x2, y2] * 10        # 要顯示在Stride2Wold
 
         print("\ncompleted!")
         stride2world.repaint()
 
     def maxContrast(self, x2, y2, data):
-        direction = [[0, 0], [1, 0], [1, 1], [0, 1]]
+        direction = [[0, 0], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
         maxVar, maxI, i = -1, 0, 0
         for di in direction:
             x, y = x2 + di[0], y2 + di[1]
