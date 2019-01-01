@@ -24,13 +24,14 @@ class GaCo:
         self.W2 = w // 2 - 1
         self.H2 = h // 2 - 1
         self.stride2 = np.zeros((self.W2, self.H2), np.int16)
+        self.contrastData = np.zeros((self.W2, self.H2), np.int32)
 
     def getEdgePoint(self, data):
         print('Begin getEdgeList =====================')
         da = (np.array(data) > 127)  # 把 0- 127 黑False   128-254白 True
         for x in range(1, self.Wid):
             if x % 10 == 0:
-                print(self.Wid - x, end=' ', flush=True)
+                print(x, end=' ', flush=True)
                 if x % 100 == 0:
                     print(' ')
             for y in range(1, self.Hei):
@@ -78,33 +79,44 @@ class GaCo:
         return black + white * 2
 
     def evaluateDiv4Map(self, data):
-        print("Begin valueDive4Map　==============")
+        print("Begin valueDive4Map　============")
         w, h = self.Wid // 4, self.Hei // 4
         for x in range(w):
             if x % 20 == 0:
-                print(w - x, end=' ', flush=True)
+                print(x, end=' ', flush=True)
             for y in range(h):
                 data[x, y] = self.valueEdge(x * 4, y * 4) * 10
         print("\ncompleted!")
 
     def evaluateStride2Map(self):
-        print("Begin valueStride2Map "+'='*52)
+        print("Begin valueStride2Map "+'='*51)
         w2, h2 = self.W2, self.H2
         for x in range(0, w2):
             if x % 20 == 0:
-                print(w2 - x, end=' ', flush=True)
+                print(x, end=' ', flush=True)
             for y in range(0, h2):
                 self.stride2[x, y] = self.valueEdge(x * 2, y * 2)  # 這個值拿來算Variance的,先不乘10
         print("\ncompleted!")
 
+    def evaluateAllContrast(self):
+        print("Begin valueAllContrast " + '=' * 123)
+        w2, h2 = self.W2, self.H2
+        for x in range(2, w2-2):
+            if x % 10 == 0:
+                print(x, end=' ', flush=True)
+            for y in range(2, h2-2):
+                self.contrastData[x, y] = self.contrast(x, y)
+        print("\ncompleted!")
+
     def evaluateSmartDiv4Map(self, stride2world):
         self.evaluateStride2Map()      # data put in self.stride2
+        self.evaluateAllContrast()
         print("Begin fill stride2world "+'='*42)
         w, h = self.Wid // 4, self.Hei // 4
         data = stride2world.Data
         for x in range(2, w-2):
             if x % 10 == 0:
-                print(w - x, end=' ', flush=True)
+                print(x, end=' ', flush=True)
             for y in range(2, h-2):
                 x2, y2 = x * 2, y * 2
                 di = self.maxContrast(x2, y2, data)
@@ -118,12 +130,14 @@ class GaCo:
         stride2world.repaint()
 
     def maxContrast(self, x2, y2, data):
+
         direction = [[0, 0], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
         maxVar, maxI, i = -1, 0, 0
         for di in direction:
             x, y = x2 + di[0], y2 + di[1]
-            if data[x, y] == 0:        # 負數代表己經被禁止了
-                var = self.contrast(x, y)
+            if data[x, y] == 0:        # 負數代表己經被禁止了, 正數代表有點了
+                # var = self.contrast(x, y)
+                var =self.contrastData[x, y]
                 if var > maxVar:
                     maxVar, maxI = var, i
             i += 1

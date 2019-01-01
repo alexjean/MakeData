@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Do Line</string>
+    <string>DrawLine</string>
    </property>
   </widget>
   <widget class="QGraphicsView" name="view">
@@ -144,7 +144,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>CalcTrainLabel</string>
+    <string>TrainLabel</string>
    </property>
   </widget>
   <widget class="QGraphicsView" name="view2">

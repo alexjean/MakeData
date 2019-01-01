@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWin.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -76,11 +76,11 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        self.btnLine.setText(_translate("Dialog", "Do Line"))
+        self.btnLine.setText(_translate("Dialog", "DrawLine"))
         self.btnClear.setText(_translate("Dialog", "Clear"))
         self.btnSave.setText(_translate("Dialog", "Save"))
         self.leTrainFileName.setText(_translate("Dialog", "EdgeTrain"))
         self.label.setText(_translate("Dialog", "_"))
         self.btnLoad.setText(_translate("Dialog", "Load"))
-        self.btnCalcTrainLabel.setText(_translate("Dialog", "CalcTrainLabel"))
+        self.btnCalcTrainLabel.setText(_translate("Dialog", "TrainLabel"))
 
