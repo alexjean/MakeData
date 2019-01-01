@@ -15,6 +15,8 @@ class GaCo:
     Black = 1
     White = 2
     NotEdge = 0
+    Dir9 = [[0, 0], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
+    Dir8 = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
 
     def __init__(self, w, h):
         self.marked = np.zeros((w, h), np.uint8)
@@ -23,8 +25,12 @@ class GaCo:
         # below variables  for evaluateStride2Map
         self.W2 = w // 2 - 1
         self.H2 = h // 2 - 1
-        self.stride2 = np.zeros((self.W2, self.H2), np.int16)
-        self.contrastData = np.zeros((self.W2, self.H2), np.int32)
+        stride2dim = (self.W2, self.H2)
+        self.stride2 = np.zeros(stride2dim, np.int16)
+        self.worldData = None
+        self.contrastData = np.zeros(stride2dim, np.int32)
+        self.forbidLevel = np.zeros(stride2dim, np.int32)
+        self.forbidBy = np.zeros(stride2dim, np.object)
 
     def getEdgePoint(self, data):
         print('Begin getEdgeList =====================')
@@ -108,40 +114,129 @@ class GaCo:
                 self.contrastData[x, y] = self.contrast(x, y)
         print("\ncompleted!")
 
+    def markFullForbidden(self, x, y, forbidLevel):
+        relist = []
+        pos = (x, y)
+        for di in GaCo.Dir8:
+            x2, y2 = x + di[0], y + di[1]
+            level = self.forbidLevel[x2, y2]
+            if level == 0:
+                self.forbidBy[x2, y2] = pos
+                self.forbidLevel[x2, y2] = -forbidLevel
+            elif level > 0:                     # 有人佔位
+                if level > forbidLevel:         # 人家強 , 外面有檢查最強才進來,應該不可能
+                    print("Err1({},{})".format(x, y))
+                else:                           # 我們強, 他重定位
+                    x3, y3 = self.forbidBy[x2, y2]
+                    self.clearPosition(x3, y3)
+                    relist.append((x3, y3))
+            elif (-level) > forbidLevel:        # 別人禁區較強 ^^" 繞開
+                pass
+            else:
+                self.forbidBy[x2, y2] = pos     # 我們強, 改我們禁區
+                self.forbidLevel[x2, y2] = -forbidLevel
+        self.forbidLevel[x, y] = forbidLevel
+        self.forbidBy[x, y] = pos
+        for (x, y) in relist:
+            self.rePosition(x, y)
+        return list
+
+    def clearForbidden(self, x, y):
+        pos = (x, y)
+        for di in GaCo.Dir8:
+            x1, y1 = x+di[0], y+di[1]
+            if self.forbidBy[x1, y1] == pos:
+                self.forbidLevel[x1, y1] = 0
+                self.forbidBy[x1, y1] = 0
+        self.forbidLevel[x, y] = 0
+        self.forbidBy[x, y] = 0
+
+    def setWorldData(self, x, y):
+        self.worldData[x, y] = self.stride2[x, y] * 10
+
+    def clearPosition(self, x, y):
+        self.worldData[x, y] = 0
+        self.clearForbidden(x, y)
+
+    def rePosition(self, x, y):
+        x -= (x % 2)
+        y -= (y % 2)
+        x4, y4, var4 = self.maxContrastPartial(x, y)
+        if var4 > 0:                                                        # <=0 無路可走
+            self.markForbidden(x4, y4, var4)
+            self.setWorldData(x4, y4)
+
+    def markForbidden(self, x, y, forbidLevel):                             # 用於rePosition內部, 不處理relist
+        pos = (x, y)
+        for di in GaCo.Dir8:
+            x2, y2 = x + di[0], y + di[1]
+            level = self.forbidLevel[x2, y2]
+            if level == 0:
+                self.forbidBy[x2, y2] = pos
+                self.forbidLevel[x2, y2] = -forbidLevel
+            elif level > 0:                     # 有人佔位
+                if level > forbidLevel:         # 人家強 , 外面有檢查最強才進來,應該不可能
+                    print("Err2({},{})".format(x, y))
+                else:                           # 我們強, 清除他,不relist,以免recursive
+                    x3, y3 = self.forbidBy[x2, y2]
+                    self.clearPosition(x3, y3)
+            elif (-level) > forbidLevel:        # 別人禁區較強 ^^" 繞開
+                pass
+            else:
+                self.forbidBy[x2, y2] = pos     # 我們強, 改我們禁區
+                self.forbidLevel[x2, y2] = -forbidLevel
+        self.forbidLevel[x, y] = forbidLevel
+        self.forbidBy[x, y] = pos
+
     def evaluateSmartDiv4Map(self, stride2world):
         self.evaluateStride2Map()      # data put in self.stride2
         self.evaluateAllContrast()
         print("Begin fill stride2world "+'='*42)
         w, h = self.Wid // 4, self.Hei // 4
-        data = stride2world.Data
+        self.worldData = stride2world.Data
         for x in range(2, w-2):
             if x % 10 == 0:
                 print(x, end=' ', flush=True)
             for y in range(2, h-2):
-                x2, y2 = x * 2, y * 2
-                di = self.maxContrast(x2, y2, data)
-                x2 += di[0]
-                y2 += di[1]
-                data[x2 + 1, y2] = data[x2, y2 + 1] = -1    # 用負數代表空乏禁止 借用stride2world.Data來放
-                data[x2 + 1, y2 + 1] = -1
-                data[x2, y2] = self.stride2[x2, y2] * 10        # 要顯示在Stride2Wold
-
+                x1, y1 = x * 2, y * 2
+                x2, y2, var = self.maxContrastAll(x1, y1)
+                if var <= 0:
+                    continue
+                level = self.forbidLevel[x2, y2]
+                if level == 0:                                        # 此點無禁制
+                    self.markFullForbidden(x2, y2, var)
+                elif level > 0 or (-level) >= var:                    # 鄰居本尊, 佔同一位置Contrast必相同, 故讓
+                    x2, y2, var = self.maxContrastPartial(x1, y1)     # or 鄰居禁區, 鄰居強 , 重定位
+                    if var <= 0:                                      # 無路可走
+                        continue
+                    self.markFullForbidden(x2, y2, var)
+                else:                                                 # else 鄰居禁區, 鄰居弱, 鄰居重算
+                    x3, y3 = self.forbidBy[x2, y2]
+                    self.clearPosition(x3, y3)
+                    self.markFullForbidden(x2, y2, var)               # 此處或有第二鄰居,沖禁制
+                    self.rePosition(x3, y3)
+                self.setWorldData(x2, y2)
         print("\ncompleted!")
         stride2world.repaint()
 
-    def maxContrast(self, x2, y2, data):
-
-        direction = [[0, 0], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
-        maxVar, maxI, i = -1, 0, 0
-        for di in direction:
-            x, y = x2 + di[0], y2 + di[1]
-            if data[x, y] == 0:        # 負數代表己經被禁止了, 正數代表有點了
-                # var = self.contrast(x, y)
-                var =self.contrastData[x, y]
+    def maxContrastPartial(self, x1, y1):
+        maxVar, mX, mY = -1, x1, y1
+        for di in GaCo.Dir9:
+            x, y = x1 + di[0], y1 + di[1]
+            if self.forbidLevel[x, y] == 0:      # 負數代表己經被禁止了, 正數代表有點了
+                var = self.contrastData[x, y]
                 if var > maxVar:
-                    maxVar, maxI = var, i
-            i += 1
-        return direction[maxI]
+                    maxVar, mX, mY = var, x, y
+        return mX, mY, maxVar
+
+    def maxContrastAll(self, x1, y1):
+        maxVar, mX, mY = -1, x1, y1
+        for di in GaCo.Dir9:
+            x, y = x1 + di[0], y1 + di[1]
+            var = self.contrastData[x, y]
+            if var > maxVar:
+                maxVar, mX, mY = var, x, y
+        return mX, mY, maxVar
 
     # x,y 算二次, 加其他8方向,湊成10
     def contrast(self, x, y):
