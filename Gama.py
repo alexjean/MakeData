@@ -141,22 +141,27 @@ class GaCo:
             self.rePosition(x, y)
         return list
 
-    def clearForbidden(self, x, y):
-        pos = (x, y)
+    def renewForbidden(self, x, y):
+        maxLevel, pos = 0, 0
         for di in GaCo.Dir8:
-            x1, y1 = x+di[0], y+di[1]
-            if self.forbidBy[x1, y1] == pos:
-                self.forbidLevel[x1, y1] = 0
-                self.forbidBy[x1, y1] = 0
-        self.forbidLevel[x, y] = 0
-        self.forbidBy[x, y] = 0
+            x1, y1 = x + di[0], y + di[1]
+            if self.forbidLevel[x1, y1] > maxLevel:  # 有佔位
+                maxLevel = self.forbidLevel[x1, y1]
+                pos = (x1, y1)
+        self.forbidLevel[x, y] = -maxLevel           # 正數是佔位,負數是禁區
+        self.forbidBy[x, y] = pos
 
     def setWorldData(self, x, y):
         self.worldData[x, y] = self.stride2[x, y] * 10
 
     def clearPosition(self, x, y):
         self.worldData[x, y] = 0
-        self.clearForbidden(x, y)
+        self.renewForbidden(x, y)
+        pos = (x, y)
+        for di in GaCo.Dir8:
+            x1, y1 = x + di[0], y + di[1]
+            if self.forbidBy[x1, y1] == pos:   # 自己要清0, 為禁區找新東家
+                self.renewForbidden(x1, y1)
 
     def rePosition(self, x, y):
         x -= (x % 2)
@@ -176,7 +181,7 @@ class GaCo:
                 self.forbidLevel[x2, y2] = -forbidLevel
             elif level > 0:                     # 有人佔位
                 if level > forbidLevel:         # 人家強 , 外面有檢查最強才進來,應該不可能
-                    print("Err2({},{})".format(x, y))
+                    pass                        # print("Err2({},{})".format(x, y))
                 else:                           # 我們強, 清除他,不relist,以免recursive
                     x3, y3 = self.forbidBy[x2, y2]
                     self.clearPosition(x3, y3)
