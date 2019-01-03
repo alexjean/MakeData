@@ -5,6 +5,7 @@ import numpy as np
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
+from Point import Point
 
 
 class World(QWidget):
@@ -72,7 +73,7 @@ class World(QWidget):
             for x1 in range(begin.x, end.x, 1):
                 self.Data[x1, y1] = 254  # 暫時保留255, 做特別標記
             return
-        elif abs(p1.x-p2.x) >= abs(p1.y-p2.y):
+        elif abs(p1.x - p2.x) >= abs(p1.y - p2.y):
             if p1.x > p2.x:
                 begin, end = p2, p1
             elif p1.x < p2.x:
@@ -99,3 +100,9 @@ class World(QWidget):
                         self.Data[x1, y1] = 254
                     xFloat = xFloat + slope
 
+    def drawCircleSolid(self, x, y, r):
+        r2 = r * r
+        for y1 in range(0, r + 1):
+            x1 = int(np.sqrt(r2 - y1 * y1))
+            self.drawLine(Point(x - x1, y + y1), Point(x + x1, y + y1))
+            self.drawLine(Point(x - x1, y - y1), Point(x + x1, y - y1))
