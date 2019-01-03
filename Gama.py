@@ -136,7 +136,7 @@ class GaCo:
             if self.forbidBy[x1, y1] == pos:   # 自己要清0, 為禁區找新東家
                 self.renewForbidden(x1, y1)
 
-    def markForbidden(self, x, y, forbidLevel, warning=True):                             # 用於rePosition內部, 不處理relist
+    def markForbidden(self, x, y, forbidLevel, warning=True):
         relist = []
         pos = (x, y)
         for di in GaCo.Dir8:
@@ -167,7 +167,7 @@ class GaCo:
             x1, y1 = x - (x % 2), y - (y % 2)
             x2, y2, var = self.maxContrastPartial(x1, y1)
             if var > 0:  # <=0 無路可走
-                relist1 = self.markForbidden(x2, y2, var, False)  # 己經是rePosition了
+                relist1 = self.markForbidden(x2, y2, var, False)  # 此處不warning了
                 self.setWorldData(x2, y2)
                 self.rePosList(relist1)
 

@@ -50,6 +50,9 @@ class Ui_Dialog(object):
         self.view2 = QtWidgets.QGraphicsView(Dialog)
         self.view2.setGeometry(QtCore.QRect(10, 250, 491, 391))
         self.view2.setObjectName("view2")
+        self.btnCircle = QtWidgets.QPushButton(Dialog)
+        self.btnCircle.setGeometry(QtCore.QRect(20, 670, 75, 23))
+        self.btnCircle.setObjectName("btnCircle")
         self.view.raise_()
         self.viewLarge.raise_()
         self.btnClear.raise_()
@@ -62,6 +65,7 @@ class Ui_Dialog(object):
         self.btnLoad.raise_()
         self.btnCalcTrainLabel.raise_()
         self.view2.raise_()
+        self.btnCircle.raise_()
 
         self.retranslateUi(Dialog)
         self.btnLine.clicked.connect(Dialog.doLine)
@@ -69,6 +73,7 @@ class Ui_Dialog(object):
         self.btnSave.clicked.connect(Dialog.saveTrainData)
         self.btnLoad.clicked.connect(Dialog.loadData)
         self.btnCalcTrainLabel.clicked.connect(Dialog.calcTrainLabel)
+        self.btnCircle.clicked.connect(Dialog.doCircle)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
         Dialog.setTabOrder(self.btnClear, self.btnLine)
         Dialog.setTabOrder(self.btnLine, self.view)
@@ -83,4 +88,5 @@ class Ui_Dialog(object):
         self.label.setText(_translate("Dialog", "_"))
         self.btnLoad.setText(_translate("Dialog", "Load"))
         self.btnCalcTrainLabel.setText(_translate("Dialog", "TrainLabel"))
+        self.btnCircle.setText(_translate("Dialog", "DrawCircle"))
 

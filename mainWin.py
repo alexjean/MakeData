@@ -28,9 +28,26 @@ class Form(Ui_Dialog, QWidget):
 
         self.world = AnalogWorld(self.view, self.viewLarge, w, h)
         self.loadedWorld = Div4World(self.view1, w, h)   # 給 loadData做檢查
-        #self.world = DigiWorld(self.view, self.view1, self.viewLarge, w, h)
+        # self.world = DigiWorld(self.view, self.view1, self.viewLarge, w, h)
         self.loadedData = None
         self.stride2World = World(self.view2, w*2, h*2)
+
+    def doCircle(self):
+        a = Point(0, 0)
+        b = Point(self.world.Width, self.world.Height)
+        c = Point(0, self.world.Height)
+        d = Point(self.world.Width // 2, 0)
+        scale = 3
+        for i in range(6 * scale):
+            ofs = Point(i, 0)
+            self.world.drawLine(a + ofs, b + ofs)
+            self.world.drawLine(c + ofs, d + ofs)
+        h = self.world.Height - 10 * scale
+        for x in range(10 * scale, self.world.Width, 37 * scale):
+            for i in range(4 * scale):
+                self.world.drawLine(Point(x + i + 1, 10), Point(x + i + 1, h))
+        self.world.before_repaint()
+        self.world.repaint()
 
     def doLine(self):
         a = Point(0, 0)
@@ -42,12 +59,10 @@ class Form(Ui_Dialog, QWidget):
             ofs = Point(i, 0)
             self.world.drawLine(a + ofs, b + ofs)
             self.world.drawLine(c + ofs, d + ofs)
-
         h = self.world.Height - 10 * scale
         for x in range(10 * scale, self.world.Width, 37 * scale):
             for i in range(4 * scale):
                 self.world.drawLine(Point(x + i + 1, 10), Point(x + i + 1, h))
-
         self.world.before_repaint()
         self.world.repaint()
 

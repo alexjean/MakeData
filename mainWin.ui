@@ -157,6 +157,19 @@
     </rect>
    </property>
   </widget>
+  <widget class="QPushButton" name="btnCircle">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>670</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>DrawCircle</string>
+   </property>
+  </widget>
   <zorder>view</zorder>
   <zorder>viewLarge</zorder>
   <zorder>btnClear</zorder>
@@ -169,6 +182,7 @@
   <zorder>btnLoad</zorder>
   <zorder>btnCalcTrainLabel</zorder>
   <zorder>view2</zorder>
+  <zorder>btnCircle</zorder>
  </widget>
  <tabstops>
   <tabstop>btnClear</tabstop>
@@ -258,6 +272,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btnCircle</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>doCircle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>681</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>621</x>
+     <y>420</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>doLine()</slot>
@@ -265,5 +295,6 @@
   <slot>saveTrainData()</slot>
   <slot>loadData()</slot>
   <slot>calcTrainLabel()</slot>
+  <slot>doCircle()</slot>
  </slots>
 </ui>
