@@ -114,33 +114,6 @@ class GaCo:
                 self.contrastData[x, y] = self.contrast(x, y)
         print("\ncompleted!")
 
-    def markFullForbidden(self, x, y, forbidLevel):
-        relist = []
-        pos = (x, y)
-        for di in GaCo.Dir8:
-            x2, y2 = x + di[0], y + di[1]
-            level = self.forbidLevel[x2, y2]
-            if level == 0:
-                self.forbidBy[x2, y2] = pos
-                self.forbidLevel[x2, y2] = -forbidLevel
-            elif level > 0:                     # 有人佔位
-                if level > forbidLevel:         # 人家強 , 外面有檢查最強才進來,應該不可能
-                    print("Err1({},{})".format(x, y))
-                else:                           # 我們強, 他重定位
-                    x3, y3 = self.forbidBy[x2, y2]
-                    self.clearPosition(x3, y3)
-                    relist.append((x3, y3))
-            elif (-level) > forbidLevel:        # 別人禁區較強 ^^" 繞開
-                pass
-            else:
-                self.forbidBy[x2, y2] = pos     # 我們強, 改我們禁區
-                self.forbidLevel[x2, y2] = -forbidLevel
-        self.forbidLevel[x, y] = forbidLevel
-        self.forbidBy[x, y] = pos
-        for (x, y) in relist:
-            self.rePosition(x, y)
-        return list
-
     def renewForbidden(self, x, y):
         maxLevel, pos = 0, 0
         for di in GaCo.Dir8:
@@ -163,15 +136,8 @@ class GaCo:
             if self.forbidBy[x1, y1] == pos:   # 自己要清0, 為禁區找新東家
                 self.renewForbidden(x1, y1)
 
-    def rePosition(self, x, y):
-        x -= (x % 2)
-        y -= (y % 2)
-        x4, y4, var4 = self.maxContrastPartial(x, y)
-        if var4 > 0:                                                        # <=0 無路可走
-            self.markForbidden(x4, y4, var4)
-            self.setWorldData(x4, y4)
-
-    def markForbidden(self, x, y, forbidLevel):                             # 用於rePosition內部, 不處理relist
+    def markForbidden(self, x, y, forbidLevel, warning=True):                             # 用於rePosition內部, 不處理relist
+        relist = []
         pos = (x, y)
         for di in GaCo.Dir8:
             x2, y2 = x + di[0], y + di[1]
@@ -181,9 +147,11 @@ class GaCo:
                 self.forbidLevel[x2, y2] = -forbidLevel
             elif level > 0:                     # 有人佔位
                 if level > forbidLevel:         # 人家強 , 外面有檢查最強才進來,應該不可能
-                    pass                        # print("Err2({},{})".format(x, y))
-                else:                           # 我們強, 清除他,不relist,以免recursive
+                    if warning:
+                        print("Err2({},{})".format(x, y))
+                else:                           # 我們強, 清除他
                     x3, y3 = self.forbidBy[x2, y2]
+                    relist.append((x3, y3))
                     self.clearPosition(x3, y3)
             elif (-level) > forbidLevel:        # 別人禁區較強 ^^" 繞開
                 pass
@@ -192,6 +160,16 @@ class GaCo:
                 self.forbidLevel[x2, y2] = -forbidLevel
         self.forbidLevel[x, y] = forbidLevel
         self.forbidBy[x, y] = pos
+        return relist
+
+    def rePosList(self, relist):
+        for (x, y) in relist:
+            x1, y1 = x - (x % 2), y - (y % 2)
+            x2, y2, var = self.maxContrastPartial(x1, y1)
+            if var > 0:  # <=0 無路可走
+                relist1 = self.markForbidden(x2, y2, var, False)  # 己經是rePosition了
+                self.setWorldData(x2, y2)
+                self.rePosList(relist1)
 
     def evaluateSmartDiv4Map(self, stride2world):
         self.evaluateStride2Map()      # data put in self.stride2
@@ -209,18 +187,19 @@ class GaCo:
                     continue
                 level = self.forbidLevel[x2, y2]
                 if level == 0:                                        # 此點無禁制
-                    self.markFullForbidden(x2, y2, var)
+                    relist = self.markForbidden(x2, y2, var)
                 elif level > 0 or (-level) >= var:                    # 鄰居本尊, 佔同一位置Contrast必相同, 故讓
                     x2, y2, var = self.maxContrastPartial(x1, y1)     # or 鄰居禁區, 鄰居強 , 重定位
                     if var <= 0:                                      # 無路可走
                         continue
-                    self.markFullForbidden(x2, y2, var)
+                    relist = self.markForbidden(x2, y2, var)
                 else:                                                 # else 鄰居禁區, 鄰居弱, 鄰居重算
                     x3, y3 = self.forbidBy[x2, y2]
                     self.clearPosition(x3, y3)
-                    self.markFullForbidden(x2, y2, var)               # 此處或有第二鄰居,沖禁制
-                    self.rePosition(x3, y3)
+                    relist = self.markForbidden(x2, y2, var)          # 此處或有第二鄰居,沖禁制
+                    relist.insert(0, (x3, y3))
                 self.setWorldData(x2, y2)
+                self.rePosList(relist)                           # recursive call
         print("\ncompleted!")
         stride2world.repaint()
 
