@@ -36,7 +36,8 @@ class Form(Ui_Dialog, QWidget):
         x = self.world.Width // 2
         y = self.world.Height // 2
         r = self.world.Width // 3
-        self.world.drawCircleSolid(x, y, r)
+        self.world.drawCircle(x, y, r)
+        self.world.drawCircle(x, y, r // 2, 0)
         self.world.before_repaint()
         self.world.repaint()
 

@@ -37,7 +37,7 @@ class World(QWidget):
                     qp.setPen(QColor(c, c, c))
                 qp.drawPoint(x, y)
 
-    def drawLine(self, p1, p2):
+    def drawLine(self, p1, p2, color=254):
         if p1.x == p2.x:
             x1 = p1.x
             if (x1 < 0) or (x1 >= self.Width):
@@ -54,7 +54,7 @@ class World(QWidget):
             if end.y > self.Height:
                 end.y = self.Height
             for y1 in range(begin.y, end.y, 1):
-                self.Data[x1, y1] = 254  # 暫時保留255, 做特別標記
+                self.Data[x1, y1] = color  # 暫時保留255, 做特別標記
             return
         elif p1.y == p2.y:
             y1 = p1.y
@@ -71,7 +71,7 @@ class World(QWidget):
             if end.x > self.Width:
                 end.x = self.Width
             for x1 in range(begin.x, end.x, 1):
-                self.Data[x1, y1] = 254  # 暫時保留255, 做特別標記
+                self.Data[x1, y1] = color  # 暫時保留255, 做特別標記
             return
         elif abs(p1.x - p2.x) >= abs(p1.y - p2.y):
             if p1.x > p2.x:
@@ -84,7 +84,7 @@ class World(QWidget):
                 if (x1 >= 0) and (x1 < self.Width):
                     y1 = int(round(yFloat))
                     if (y1 >= 0) and (y1 < self.Height):
-                        self.Data[x1, y1] = 254
+                        self.Data[x1, y1] = color
                     yFloat = yFloat + slope
         else:
             if p1.y > p2.y:
@@ -97,12 +97,12 @@ class World(QWidget):
                 if (y1 >= 0) and (y1 < self.Height):
                     x1 = int(round(xFloat))
                     if (x1 >= 0) and (x1 < self.Width):
-                        self.Data[x1, y1] = 254
+                        self.Data[x1, y1] = color
                     xFloat = xFloat + slope
 
-    def drawCircleSolid(self, x, y, r):
+    def drawCircle(self, x, y, r,color=254):
         r2 = r * r
         for y1 in range(0, r + 1):
             x1 = int(np.sqrt(r2 - y1 * y1))
-            self.drawLine(Point(x - x1, y + y1), Point(x + x1, y + y1))
-            self.drawLine(Point(x - x1, y - y1), Point(x + x1, y - y1))
+            self.drawLine(Point(x - x1, y + y1), Point(x + x1, y + y1), color)
+            self.drawLine(Point(x - x1, y - y1), Point(x + x1, y - y1), color)
