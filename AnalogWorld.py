@@ -107,13 +107,13 @@ class AnalogWorld(World):
                     self.Data[x * 2, y * 2] = 254
         self.repaint()
 
-    def calcGamaLabel(self, world, stride2World):
+    def calcGamaLabel(self, loadedWorld, stride2World):
         w, h = self.div4World.Width, self.div4World.Height
         gama = GaCo(w * 4, h * 4)
         gama.getEdgePoint(self.Data)
-        gama.evaluateDiv4Map(world.Data)
-        world.repaint()
-        gama.evaluateSmartDiv4Map(stride2World, world)
+        gama.evaluateDiv4Map(loadedWorld.Data)
+        loadedWorld.repaint()
+        gama.evaluateSmartDiv4Map(stride2World, self.div4World)
 
     def calcDiv4(self):
         w = self.div4World.Width

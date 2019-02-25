@@ -28,6 +28,7 @@ class GaCo:
         stride2dim = (self.W2, self.H2)
         self.stride2 = np.zeros(stride2dim, np.int16)
         self.worldData = None
+        self.trainLabel = None
         self.contrastData = np.zeros(stride2dim, np.int32)
         self.forbidLevel = np.zeros(stride2dim, np.int32)
         self.forbidBy = np.zeros(stride2dim, np.object)
@@ -125,10 +126,20 @@ class GaCo:
         self.forbidBy[x, y] = pos
 
     def setWorldData(self, x, y):
-        self.worldData[x, y] = self.stride2[x, y] * 10
+        self.worldData[x, y] = grayLevel = self.stride2[x, y] * 10
+        x0, y0 = x // 2, y // 2
+        x1, y1 = x % 2, y % 2
+        if grayLevel == 0:
+            self.trainLabel[x0, y0] = grayLevel
+        else:
+            self.trainLabel[x0, y0] = (x1 << 12 ) + (y1 << 8) + grayLevel
+
+    def clearWorldData(self, x, y):
+        self.worldData[x, y] = 0
+        self.trainLabel[x // 2, y // 2] = 0
 
     def clearPosition(self, x, y):
-        self.worldData[x, y] = 0
+        self.clearWorldData(x, y)
         self.renewForbidden(x, y)
         pos = (x, y)
         for di in GaCo.Dir8:
@@ -171,14 +182,14 @@ class GaCo:
                 self.setWorldData(x2, y2)
                 self.rePosList(relist1)
 
-    def evaluateSmartDiv4Map(self, stride2world, worldLabelSaved):
+    def evaluateSmartDiv4Map(self, stride2world, div4World):
         self.evaluateStride2Map()      # data put in self.stride2
         self.evaluateAllContrast()
         print("Begin fill stride2world "+'='*42)
         w, h = self.Wid // 4, self.Hei // 4
         self.worldData = stride2world.Data
-        label = worldLabelSaved.trainLabel = np.zeros((w, h), np.uint16)
-        # uint16 highByte是offset,編碼如同 Gaco.Dir9
+        self.trainLabel = div4World.trainLabel                        # 呼叫方初使己有 = np.zero((w,h),np.int16)
+        # int16 highByte是offset,編碼如同 Gaco.Dir9 =>(-1, 1)
         # lowByte是GrayLevel
 
         for x in range(2, w-2):
@@ -206,6 +217,18 @@ class GaCo:
                 self.rePosList(relist)                           # recursive call
         print("\ncompleted!")
         stride2world.repaint()
+
+    def stride2Label(self, stride2World, div4World):
+        w, h = self.Wid // 4, self.Hei // 4
+        label = div4World.trainLabel = np.zeros((w, h), np.uint16)
+        # uint16 highByte是offset,編碼如同 Gaco.Dir9
+        # lowByte是GrayLevel
+        data = stride2World.Data
+        for x in range(2, w-2):
+            for y in range(2, h-2):
+                x1, y1 = x * 2, y * 2
+
+
 
     def maxContrastPartial(self, x1, y1):
         maxVar, mX, mY = -1, x1, y1
