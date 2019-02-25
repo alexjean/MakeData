@@ -8,8 +8,8 @@ from enum import Enum
 class GaCo:
     """
     要制作的TrainData output
-    改為 每個點一個 強度 (梯度?)  offset ( 0> 1\ 2V 3/ ) <= stride2 shift
-    鄰居8點加自己投票定,本'井字'最sharp offset. 但offset只用於本點
+    改為 每個點一個 強度 (梯度?)  offset 定義如Dir9 <= stride2 shift
+    鄰居8點加自己投票定,本'田字'最sharp offset. 但offset只用於本點
     暫不處理SuperResolution, 能力不足
     """
     Black = 1
@@ -171,12 +171,16 @@ class GaCo:
                 self.setWorldData(x2, y2)
                 self.rePosList(relist1)
 
-    def evaluateSmartDiv4Map(self, stride2world):
+    def evaluateSmartDiv4Map(self, stride2world, worldLabelSaved):
         self.evaluateStride2Map()      # data put in self.stride2
         self.evaluateAllContrast()
         print("Begin fill stride2world "+'='*42)
         w, h = self.Wid // 4, self.Hei // 4
         self.worldData = stride2world.Data
+        label = worldLabelSaved.trainLabel = np.zeros((w, h), np.uint16)
+        # uint16 highByte是offset,編碼如同 Gaco.Dir9
+        # lowByte是GrayLevel
+
         for x in range(2, w-2):
             if x % 10 == 0:
                 print(x, end=' ', flush=True)

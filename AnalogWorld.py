@@ -113,7 +113,7 @@ class AnalogWorld(World):
         gama.getEdgePoint(self.Data)
         gama.evaluateDiv4Map(world.Data)
         world.repaint()
-        gama.evaluateSmartDiv4Map(stride2World)
+        gama.evaluateSmartDiv4Map(stride2World, world)
 
     def calcDiv4(self):
         w = self.div4World.Width
