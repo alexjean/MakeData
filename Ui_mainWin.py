@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'mainWin.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -29,20 +30,20 @@ class Ui_Dialog(object):
         self.view1.setGeometry(QtCore.QRect(250, 10, 251, 231))
         self.view1.setObjectName("view1")
         self.btnSave = QtWidgets.QPushButton(Dialog)
-        self.btnSave.setGeometry(QtCore.QRect(200, 700, 75, 23))
+        self.btnSave.setGeometry(QtCore.QRect(250, 670, 75, 23))
         self.btnSave.setObjectName("btnSave")
         self.leTrainFileName = QtWidgets.QLineEdit(Dialog)
-        self.leTrainFileName.setGeometry(QtCore.QRect(200, 730, 71, 20))
+        self.leTrainFileName.setGeometry(QtCore.QRect(250, 700, 71, 20))
         self.leTrainFileName.setObjectName("leTrainFileName")
         self.sboxTrainFileName = QtWidgets.QSpinBox(Dialog)
-        self.sboxTrainFileName.setGeometry(QtCore.QRect(290, 730, 51, 22))
+        self.sboxTrainFileName.setGeometry(QtCore.QRect(340, 700, 51, 22))
         self.sboxTrainFileName.setMaximum(9999)
         self.sboxTrainFileName.setObjectName("sboxTrainFileName")
         self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(280, 730, 21, 21))
+        self.label.setGeometry(QtCore.QRect(330, 700, 21, 21))
         self.label.setObjectName("label")
         self.btnLoad = QtWidgets.QPushButton(Dialog)
-        self.btnLoad.setGeometry(QtCore.QRect(200, 760, 75, 23))
+        self.btnLoad.setGeometry(QtCore.QRect(340, 670, 75, 23))
         self.btnLoad.setObjectName("btnLoad")
         self.btnCalcTrainLabel = QtWidgets.QPushButton(Dialog)
         self.btnCalcTrainLabel.setGeometry(QtCore.QRect(110, 700, 81, 23))
@@ -53,6 +54,9 @@ class Ui_Dialog(object):
         self.btnCircle = QtWidgets.QPushButton(Dialog)
         self.btnCircle.setGeometry(QtCore.QRect(20, 670, 75, 23))
         self.btnCircle.setObjectName("btnCircle")
+        self.btnGenerate = QtWidgets.QPushButton(Dialog)
+        self.btnGenerate.setGeometry(QtCore.QRect(20, 770, 75, 23))
+        self.btnGenerate.setObjectName("btnGenerate")
         self.view.raise_()
         self.viewLarge.raise_()
         self.btnClear.raise_()
@@ -66,6 +70,7 @@ class Ui_Dialog(object):
         self.btnCalcTrainLabel.raise_()
         self.view2.raise_()
         self.btnCircle.raise_()
+        self.btnGenerate.raise_()
 
         self.retranslateUi(Dialog)
         self.btnLine.clicked.connect(Dialog.doLine)
@@ -74,6 +79,7 @@ class Ui_Dialog(object):
         self.btnLoad.clicked.connect(Dialog.loadData)
         self.btnCalcTrainLabel.clicked.connect(Dialog.calcTrainLabel)
         self.btnCircle.clicked.connect(Dialog.doCircle)
+        self.btnGenerate.clicked.connect(Dialog.doGenerate)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
         Dialog.setTabOrder(self.btnClear, self.btnLine)
         Dialog.setTabOrder(self.btnLine, self.view)
@@ -89,4 +95,6 @@ class Ui_Dialog(object):
         self.btnLoad.setText(_translate("Dialog", "Load"))
         self.btnCalcTrainLabel.setText(_translate("Dialog", "TrainLabel"))
         self.btnCircle.setText(_translate("Dialog", "DrawCircle"))
+        self.btnGenerate.setText(_translate("Dialog", "Generate"))
+
 

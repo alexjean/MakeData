@@ -128,10 +128,10 @@ class GaCo:
     def setWorldData(self, x, y):
         self.worldData[x, y] = grayLevel = self.stride2[x, y] * 10
         x0, y0 = x // 2, y // 2
-        x1, y1 = x % 2, y % 2
         if grayLevel == 0:
-            self.trainLabel[x0, y0] = grayLevel
+            self.trainLabel[x0, y0] = 0
         else:
+            x1, y1 = x % 2, y % 2
             self.trainLabel[x0, y0] = (x1 << 12 ) + (y1 << 8) + grayLevel
 
     def clearWorldData(self, x, y):

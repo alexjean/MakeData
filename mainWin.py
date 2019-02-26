@@ -4,11 +4,12 @@
 import sys
 from PyQt5.QtWidgets import *
 from Ui_mainWin import *
-from DigiWorld import *
+#from DigiWorld import *
 from AnalogWorld import *
 from Point import Point
 import numpy as np
 from World import World
+import random
 
 
 class Form(Ui_Dialog, QWidget):
@@ -16,8 +17,8 @@ class Form(Ui_Dialog, QWidget):
         super(Form, self).__init__(parent)
         self.setupUi(self)
         self.move(450, 40)
-        w = 200
-        h = 200
+        w, h = 200, 200
+        self.Wid, self.Hei = w * 4, h * 4
         self.view.resize(w + 4, h + 4)
         self.view1.move(self.view.x() + w + 4, self.view.y())
         self.view1.resize(w + 4, h + 4)
@@ -94,6 +95,38 @@ class Form(Ui_Dialog, QWidget):
             print(name + ' data' + str(da.shape) + ' label' + str(la.shape) + ' loaded!')
         except Exception as reason:
             print('Error:' + str(reason))
+
+    def randomLine(self):
+        x0 = random.randint(1, self.Wid - 2)
+        y0 = random.randint(1, self.Hei - 2)
+        x1 = random.randint(1, self.Wid - 2)
+        y1 = random.randint(1, self.Hei - 2)
+        wi = random.randint(10, 100)
+        co = 0 if random.randint(0, 2) == 0 else 254
+        if abs(y1 - y0) > abs(x1 - x0):
+            for i in range(wi):
+                self.world.drawLine(Point(x0 + i, y0), Point(x1 + i, y1), co)
+        else:
+            for i in range(wi):
+                self.world.drawLine(Point(x0, y0 + i), Point(x1, y1 + i), co)
+
+    def randomCircle(self):
+        x = random.randint(1, self.Wid - 2)
+        y = random.randint(1, self.Hei - 2)
+        r = random.randint(10, self.Wid // 3)
+        co = 0 if random.randint(0, 2) == 0 else 254
+        self.world.drawCircle(x, y, r, co)
+
+    def doGenerate(self):
+        for no in range(30):
+            if random.randint(0, 2) == 0:
+                self.randomCircle()
+            else:
+                self.randomLine()
+
+        self.world.before_repaint()
+        self.world.repaint()
+
 
 
 if __name__ == '__main__':
