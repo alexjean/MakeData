@@ -10,7 +10,7 @@ from Point import Point
 import numpy as np
 from World import World
 import random
-
+import os
 
 class Form(Ui_Dialog, QWidget):
     def __init__(self, parent=None):
@@ -126,6 +126,15 @@ class Form(Ui_Dialog, QWidget):
 
         self.world.before_repaint()
         self.world.repaint()
+
+    def doAuto(self):
+        dirName = "data/"+self.edPath.text().strip()
+        if os.path.exists(dirName):
+            QMessageBox.information(self, "Info","目錄<"+dirName+">己經存在, 請指定新的目錄名!")
+        else:
+            os.mkdir(dirName)
+            QMessageBox.information(self, "Info","目錄<"+dirName+">己建立, 開始創造訓練資料!")
+        pass
 
 
 
