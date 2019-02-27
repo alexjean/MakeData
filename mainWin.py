@@ -11,6 +11,7 @@ import numpy as np
 from World import World
 import random
 import os
+import time
 
 class Form(Ui_Dialog, QWidget):
     def __init__(self, parent=None):
@@ -66,10 +67,12 @@ class Form(Ui_Dialog, QWidget):
 
     def clearWorld(self):
         self.world.clearWorld()
+        self.loadedWorld.clearWorld()
+        self.stride2World.clearWorld()
 
     def fileName(self):
-        name = 'data/' + self.leTrainFileName.text() + '_'
-        name += str(self.sboxTrainFileName.value()) + '.npz'
+        name = 'data/' + self.leTrainFileName.text()
+        name += "{:0>4d}".format(self.sboxTrainFileName.value()) + '.npz'
         return name
 
     def saveTrainData(self):
@@ -128,14 +131,21 @@ class Form(Ui_Dialog, QWidget):
         self.world.repaint()
 
     def doAuto(self):
-        dirName = "data/"+self.edPath.text().strip()
+        pathName = self.edPath.text().strip()
+        dirName = "data/"+pathName
         if os.path.exists(dirName):
-            QMessageBox.information(self, "Info","目錄<"+dirName+">己經存在, 請指定新的目錄名!")
+            QMessageBox.information(self, "Info", "目錄<"+dirName+">己經存在, 請指定新的目錄名!")
         else:
             os.mkdir(dirName)
-            QMessageBox.information(self, "Info","目錄<"+dirName+">己建立, 開始創造訓練資料!")
-        pass
-
+            QMessageBox.information(self, "Info", "目錄<"+dirName+">己建立, 開始創造訓練資料!")
+            self.leTrainFileName.setText(pathName+"/"+pathName)
+            for i in range(1000):
+                self.sboxTrainFileName.setValue(i)
+                self.clearWorld()
+                self.doGenerate()
+                self.calcTrainLabel()
+                self.saveTrainData()
+                time.sleep(1)
 
 
 if __name__ == '__main__':

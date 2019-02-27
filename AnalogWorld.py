@@ -14,6 +14,10 @@ class Div4World(World):
         super().__init__(view, w, h)
         self.trainLabel = np.zeros([w, h], np.int16)
 
+    def clearWorld(self):
+        self.trainLabel[:, :] = 0
+        super().clearWorld()
+
 
 class AnalogWorld(World):
     def __init__(self, view, viewLarge, w, h):
@@ -140,6 +144,6 @@ class AnalogWorld(World):
     #       self.edgeWorld.repaint()
 
     def clearWorld(self):
-        self.Data[:] = 0
+        self.Data[:, :] = 0
         self.before_repaint()
         self.repaint()

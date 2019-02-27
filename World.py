@@ -20,6 +20,14 @@ class World(QWidget):
         self.resize(w, h)
         self.move(2, 2)
 
+    def repaint(self, *__args):
+        super().repaint()
+        QApplication.processEvents()
+
+    def clearWorld(self):
+        self.Data[:, :] = 0
+        self.repaint()
+
     def paintEvent(self, paintEvent):
         qp = QPainter()
         qp.begin(self)
