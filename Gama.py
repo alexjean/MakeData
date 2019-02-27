@@ -38,7 +38,7 @@ class GaCo:
         da = (np.array(data) > 127)  # 把 0- 127 黑False   128-254白 True
         for x in range(1, self.Wid):
             if x % 10 == 0:
-                print(x, end=' ', flush=True)
+                print("%3d" % x, end=' ', flush=True)
                 if x % 100 == 0:
                     print(' ')
             for y in range(1, self.Hei):
@@ -106,11 +106,13 @@ class GaCo:
         print("\ncompleted!")
 
     def evaluateAllContrast(self):
-        print("Begin valueAllContrast " + '=' * 123)
+        print("Begin valueAllContrast " + '=' * 56)
         w2, h2 = self.W2, self.H2
         for x in range(2, w2-2):
             if x % 10 == 0:
-                print(x, end=' ', flush=True)
+                print("%3d" % x, end=' ', flush=True)
+                if x % 200 == 0:
+                    print(' ')
             for y in range(2, h2-2):
                 self.contrastData[x, y] = self.contrast(x, y)
         print("\ncompleted!")
@@ -227,8 +229,6 @@ class GaCo:
         for x in range(2, w-2):
             for y in range(2, h-2):
                 x1, y1 = x * 2, y * 2
-
-
 
     def maxContrastPartial(self, x1, y1):
         maxVar, mX, mY = -1, x1, y1
