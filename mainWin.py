@@ -12,6 +12,9 @@ from World import World
 import random
 import os
 import time
+import Neural
+import torch.nn as nn
+
 
 class Form(Ui_Dialog, QWidget):
     def __init__(self, parent=None):
@@ -70,9 +73,12 @@ class Form(Ui_Dialog, QWidget):
         self.loadedWorld.clearWorld()
         self.stride2World.clearWorld()
 
-    def fileName(self):
+    def fileName(self, intVal=-1):
         name = 'data/' + self.leTrainFileName.text()
-        name += "{:0>4d}".format(self.sboxTrainFileName.value()) + '.npz'
+        if intVal < 0:
+            name += "{:0>4d}".format(self.sboxTrainFileName.value()) + '.npz'
+        else:
+            name += "{:0>4d}".format(intVal) + '.npz'
         return name
 
     def saveTrainData(self):
@@ -86,8 +92,10 @@ class Form(Ui_Dialog, QWidget):
         # self.sboxTrainFileName.stepUp()
         self.btnSave.setFocus()
 
-    def loadData(self):
-        name = self.fileName()
+    # PyQt singal 會給False所以只好default False
+    def loadData(self, name=False):
+        if name == False:
+            name = self.fileName()
         try:
             self.loadedData = np.load(name)
             da = self.loadedData['data']
@@ -96,7 +104,7 @@ class Form(Ui_Dialog, QWidget):
             self.loadedWorld.trainLabel = la
             self.loadedWorld.repaint()
             self.stride2World.clearWorld()
-            Form.label2stride2(self.loadedWorld, self.stride2World.Data)
+            Form.label2stride2(self.loadedWorld.trainLabel, self.stride2World.Data)
             self.stride2World.repaint()
             print(name + ' data' + str(da.shape) + ' label' + str(la.shape) + ' loaded!')
         except Exception as reason:
@@ -104,10 +112,10 @@ class Form(Ui_Dialog, QWidget):
             print(strReason)
 
     @staticmethod
-    def label2stride2(loadedWorld, data):
-        label = loadedWorld.trainLabel
-        for row in range(loadedWorld.Width):
-            for col in range(loadedWorld.Height):
+    def label2stride2(label, data):
+        (w, h) = label.shape
+        for row in range(w):
+            for col in range(h):
                 la = label[row, col]
                 co = la & 0xff
                 x0, y0 = la >> 12, (la >> 8) & 0xf
@@ -163,6 +171,14 @@ class Form(Ui_Dialog, QWidget):
                 self.calcTrainLabel()
                 self.saveTrainData()
                 time.sleep(1)
+
+    def doTraining(self):
+        module = Neural.Net()
+        for i in range(1000):
+            self.Training(self.fileName(i))
+
+    def Training(self, fileName):
+        self.loadData(fileName)
 
 
 if __name__ == '__main__':
