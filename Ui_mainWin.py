@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'mainWin.ui'
 #
-# Created by: PyQt5 UI code generator 5.12
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -103,7 +102,7 @@ class Ui_Dialog(object):
         self.btnLine.setText(_translate("Dialog", "DrawLine"))
         self.btnClear.setText(_translate("Dialog", "Clear"))
         self.btnSave.setText(_translate("Dialog", "Save"))
-        self.leTrainFileName.setText(_translate("Dialog", "EdgeTrain"))
+        self.leTrainFileName.setText(_translate("Dialog", "AA/AA"))
         self.label.setText(_translate("Dialog", "_"))
         self.btnLoad.setText(_translate("Dialog", "Load"))
         self.btnCalcTrainLabel.setText(_translate("Dialog", "TrainLabel"))
@@ -112,5 +111,4 @@ class Ui_Dialog(object):
         self.btnAuto.setText(_translate("Dialog", "AutoGenerateTrain"))
         self.label_2.setText(_translate("Dialog", "on Directory"))
         self.edPath.setText(_translate("Dialog", "AA"))
-
 

@@ -95,9 +95,24 @@ class Form(Ui_Dialog, QWidget):
             self.loadedWorld.Data = da
             self.loadedWorld.trainLabel = la
             self.loadedWorld.repaint()
+            self.stride2World.clearWorld()
+            Form.label2stride2(self.loadedWorld, self.stride2World.Data)
+            self.stride2World.repaint()
             print(name + ' data' + str(da.shape) + ' label' + str(la.shape) + ' loaded!')
         except Exception as reason:
-            print('Error:' + str(reason))
+            strReason = str(reason)
+            print(strReason)
+
+    @staticmethod
+    def label2stride2(loadedWorld, data):
+        label = loadedWorld.trainLabel
+        for row in range(loadedWorld.Width):
+            for col in range(loadedWorld.Height):
+                la = label[row, col]
+                co = la & 0xff
+                x0, y0 = la >> 12, (la >> 8) & 0xf
+                x, y = row*2+x0, col*2+y0
+                data[x, y] = co
 
     def randomLine(self):
         x0 = random.randint(1, self.Wid - 2)
@@ -131,6 +146,8 @@ class Form(Ui_Dialog, QWidget):
         self.world.repaint()
 
     def doAuto(self):
+        if not os.path.exists('data'):
+            os.mkdir('data')
         pathName = self.edPath.text().strip()
         dirName = "data/"+pathName
         if os.path.exists(dirName):

@@ -134,7 +134,7 @@ class GaCo:
             self.trainLabel[x0, y0] = 0
         else:
             x1, y1 = x % 2, y % 2
-            self.trainLabel[x0, y0] = (x1 << 12 ) + (y1 << 8) + grayLevel
+            self.trainLabel[x0, y0] = (x1 << 12) + (y1 << 8) + grayLevel
 
     def clearWorldData(self, x, y):
         self.worldData[x, y] = 0
@@ -189,6 +189,7 @@ class GaCo:
         self.evaluateAllContrast()
         print("Begin fill stride2world "+'='*42)
         w, h = self.Wid // 4, self.Hei // 4
+        stride2world.clearWorld()
         self.worldData = stride2world.Data
         self.trainLabel = div4World.trainLabel                        # 呼叫方初使己有 = np.zero((w,h),np.int16)
         # int16 highByte是offset,編碼如同 Gaco.Dir9 =>(-1, 1)

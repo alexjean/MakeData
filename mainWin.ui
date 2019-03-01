@@ -92,7 +92,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>EdgeTrain</string>
+    <string>AA/AA</string>
    </property>
   </widget>
   <widget class="QSpinBox" name="sboxTrainFileName">
