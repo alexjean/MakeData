@@ -2,7 +2,7 @@
 # @Time    : 2018/11/5 下午 06:22
 # @Author  : AlexJean
 import numpy as np
-from enum import Enum
+
 
 
 class GaCo:
@@ -128,6 +128,7 @@ class GaCo:
         self.forbidBy[x, y] = pos
 
     def setWorldData(self, x, y):
+        # self.stride2內存的是16pixels 白邊+黑邊+較短的邊,所以不可能超過24
         self.worldData[x, y] = grayLevel = self.stride2[x, y] * 10
         x0, y0 = x // 2, y // 2
         if grayLevel == 0:

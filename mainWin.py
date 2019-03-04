@@ -13,7 +13,7 @@ import random
 import os
 import time
 import Neural
-import torch.nn as nn
+import torch
 
 
 class Form(Ui_Dialog, QWidget):
@@ -172,14 +172,25 @@ class Form(Ui_Dialog, QWidget):
                 self.saveTrainData()
                 time.sleep(1)
 
+    def convertData(self, i):
+        self.loadData(self.fileName(i))
+        x = torch.Tensor(self.loadedWorld.Data).float()
+        x /= 255.
+        y = torch.Tensor(self.loadedWorld.trainLabel).float()
+        return x, y
+
     def doTraining(self):
-        module = Neural.Net()
+        net = Neural.Net()
+        optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
+        lossFunc = torch.nn.CrossEntropyLoss()
         for i in range(1000):
-            self.Training(self.fileName(i))
-
-    def Training(self, fileName):
-        self.loadData(fileName)
-
+            x, y = self.convertData(i)
+            # pred_y = net.forward(x)
+            # loss = lossFunc(pred_y, y)
+            # print("<%3d> %.4f" % (i, loss))
+            # optimizer.zero_grad()
+            # loss.backward()
+            # optimizer.step()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
