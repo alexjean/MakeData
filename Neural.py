@@ -23,11 +23,11 @@ class Net(nn.Module):
         x = F.tanh(self.conv1(x))
         x = F.tanh(self.conv2(x))
         x = F.tanh(self.conv3(x))
-        x = F.softmax(self.conv4(x))
+        x = F.sigmoid(self.conv4(x))           # [batch, 5, H, W]
         return x
 
     def _initialize_weights(self):
         init.xavier_normal(self.conv1.weight, init.calculate_gain('tanh'))
         init.xavier_normal(self.conv2.weight, init.calculate_gain('tanh'))
         init.xavier_normal(self.conv3.weight, init.calculate_gain('tanh'))
-        init.xavier_normal(self.conv4.weight)
+        init.orthogonal_(self.conv4.weight, init.calculate_gain('sigmoid'))

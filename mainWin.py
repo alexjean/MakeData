@@ -92,35 +92,37 @@ class Form(Ui_Dialog, QWidget):
         # self.sboxTrainFileName.stepUp()
         self.btnSave.setFocus()
 
-    # PyQt singal 會給False所以只好default False
-    def loadData(self, name=False):
-        if name == False:
-            name = self.fileName()
-        try:
-            self.loadedData = np.load(name)
-            da = self.loadedData['data']
-            la = self.loadedData['label']
-            self.loadedWorld.Data = da
-            self.loadedWorld.trainLabel = la
+    def doLoadData(self):
+        if self.loadData(self.fileName()):
+            self.loadedWorld.Data = self.loadedData['data']
+            self.loadedWorld.trainLabel = self.loadedData['label']
             self.loadedWorld.repaint()
             self.stride2World.clearWorld()
             Form.label2stride2(self.loadedWorld.trainLabel, self.stride2World.Data)
             self.stride2World.repaint()
+
+    def loadData(self, name):
+        try:
+            self.loadedData = np.load(name)
+            da = self.loadedData['data']
+            la = self.loadedData['label']
             print(name + ' data' + str(da.shape) + ' label' + str(la.shape) + ' loaded!')
+            return True
         except Exception as reason:
             strReason = str(reason)
             print(strReason)
+            return False
 
     @staticmethod
     def label2stride2(label, data):
-        (w, h) = label.shape
-        for row in range(w):
-            for col in range(h):
+        (h, w) = label.shape
+        for row in range(h):
+            for col in range(w):
                 la = label[row, col]
                 co = la & 0xff
                 x0, y0 = la >> 12, (la >> 8) & 0xf
-                x, y = row*2+x0, col*2+y0
-                data[x, y] = co
+                x, y = row * 2 + x0, col * 2 + y0
+                data[x, y] = 0 if co < 40 else co         # 太暗的拾棄
 
     def randomLine(self):
         x0 = random.randint(1, self.Wid - 2)
@@ -153,7 +155,7 @@ class Form(Ui_Dialog, QWidget):
         self.world.before_repaint()
         self.world.repaint()
 
-    def doAuto(self):
+    def doBatchGenerateLabel(self):
         if not os.path.exists('data'):
             os.mkdir('data')
         pathName = self.edPath.text().strip()
@@ -171,6 +173,53 @@ class Form(Ui_Dialog, QWidget):
                 self.calcTrainLabel()
                 self.saveTrainData()
                 time.sleep(1)
+
+    def doMergeData(self):
+        """
+        data/AA/AA0000.npz
+        data = [1, 200, 200]  int32 只用了uint8
+        label = [200,200] uint16=00xx00yy cccccccc, 最小編碼為onehot可用4個bit,全0 或最多一個1
+        為方便取batch, 將檔案merge為
+        data = [batch,1,200,200]  uint8
+        label = [batch,1,200,200] uint8  ,4output每個output佔2bit預留空間
+        """
+        pathName = self.edPath.text().strip()
+        dirName = "data/" + pathName
+        if not os.path.exists(dirName):
+            QMessageBox.information(self, "Info", "目錄<"+dirName+">不存在, 請指定新的目錄名!")
+            return
+        files = os.listdir(dirName)
+        batch = len(files)
+        self.loadData(dirName+'/'+files[0])
+        (h, w) = self.loadedData['data'].shape
+        data  = np.zeros([batch, 1, h, w], np.uint8)
+        label = np.zeros([batch, 1, h, w], np.uint8)
+        i = 0
+        for fi in files:
+            if not fi.lower().endswith('.npz'):
+                continue
+            self.loadData(dirName+'/'+fi)
+            da = self.loadedData['data']
+            la = self.loadedData['label']
+            data[i, 0] = da.astype(np.uint8)
+            for row in range(h):
+                for col in range(w):
+                    l1 = la[row, col]
+                    if (l1 & 0xff) < 40:             # 太暗點的不要了 , label值有點怪
+                        label[i, 0, row, col] = 0
+                    else:
+                        x = (l1 >> 12) & 1
+                        y = (l1 >> 8) & 1
+                        b1 = 3 << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0 現在一律是3
+                        label[i, 0, row, col] = b1 & 0xff
+            i = i + 1
+        name = "data/Full"+pathName+".npz"
+        try:
+            np.savez_compressed(name, data=data, label=label)
+            print(name + " write success!")
+        except Exception as reason:
+            print('Error:' + str(reason))
+
 
     def convertData(self, i):
         self.loadData(self.fileName(i))
