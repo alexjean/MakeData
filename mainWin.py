@@ -14,6 +14,8 @@ import os
 import time
 import Neural
 import torch
+import pylab as pl
+
 
 
 class Form(Ui_Dialog, QWidget):
@@ -114,15 +116,30 @@ class Form(Ui_Dialog, QWidget):
             return False
 
     @staticmethod
+    def newColor(co):
+        """
+        1點:2點:10點:12點 發生率約 2.7: 1: 2.5: 8.5 其餘都接近0
+        大於12以上的可能是特徴點
+        故將10點含以上定為3 = 0.99  , 1 2 點的全忽略
+        """
+        if co < 33:
+            return 0
+        elif co > 99:
+            return 3
+        elif co > 66:
+            return 2
+        else:
+            return 1
+
+    @staticmethod
     def label2stride2(label, data):
         (h, w) = label.shape
         for row in range(h):
             for col in range(w):
                 la = label[row, col]
-                co = la & 0xff
                 x0, y0 = la >> 12, (la >> 8) & 0xf
                 x, y = row * 2 + x0, col * 2 + y0
-                data[x, y] = 0 if co < 40 else co         # 太暗的拾棄
+                data[x, y] = Form.newColor(la & 0xff) * 40         # 太暗的拾棄
 
     def randomLine(self):
         x0 = random.randint(1, self.Wid - 2)
@@ -195,6 +212,7 @@ class Form(Ui_Dialog, QWidget):
         data  = np.zeros([batch, 1, h, w], np.uint8)
         label = np.zeros([batch, 1, h, w], np.uint8)
         i = 0
+        stat = np.zeros([26], np.int32)
         for fi in files:
             if not fi.lower().endswith('.npz'):
                 continue
@@ -202,24 +220,26 @@ class Form(Ui_Dialog, QWidget):
             da = self.loadedData['data']
             la = self.loadedData['label']
             data[i, 0] = da.astype(np.uint8)
+            li0 = label[i, 0]
             for row in range(h):
                 for col in range(w):
                     l1 = la[row, col]
-                    if (l1 & 0xff) < 40:             # 太暗點的不要了 , label值有點怪
-                        label[i, 0, row, col] = 0
-                    else:
-                        x = (l1 >> 12) & 1
-                        y = (l1 >> 8) & 1
-                        b1 = 3 << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0 現在一律是3
-                        label[i, 0, row, col] = b1 & 0xff
+                    co = l1 & 0xff
+                    if co != 0:              # 0 太多了
+                        stat[co//10] += 1    # co是16點計邊 * 10來的
+                    x = (l1 >> 12) & 1
+                    y = (l1 >> 8) & 1
+                    b1 = Form.newColor(co) << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0
+                    li0[row, col] = b1 & 0xff
             i = i + 1
         name = "data/Full"+pathName+".npz"
         try:
             np.savez_compressed(name, data=data, label=label)
             print(name + " write success!")
+            pl.plot(range(len(stat)), stat)
+            pl.show()
         except Exception as reason:
             print('Error:' + str(reason))
-
 
     def convertData(self, i):
         self.loadData(self.fileName(i))

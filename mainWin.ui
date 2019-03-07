@@ -154,7 +154,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>All</string>
+    <string>AB</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnTraining">
@@ -221,20 +221,16 @@
     </property>
    </widget>
   </widget>
+  <zorder>splitter</zorder>
   <zorder>view</zorder>
   <zorder>viewLarge</zorder>
-  <zorder>btnClear</zorder>
-  <zorder>btnLine</zorder>
   <zorder>view1</zorder>
   <zorder>btnSave</zorder>
   <zorder>leTrainFileName</zorder>
   <zorder>sboxTrainFileName</zorder>
   <zorder>label</zorder>
   <zorder>btnLoad</zorder>
-  <zorder>btnCalcTrainLabel</zorder>
   <zorder>view2</zorder>
-  <zorder>btnCircle</zorder>
-  <zorder>btnGenerate</zorder>
   <zorder>btnBatchGenerateLabel</zorder>
   <zorder>label_2</zorder>
   <zorder>edPath</zorder>
