@@ -14,7 +14,19 @@ import os
 import time
 import Neural
 import torch
-import pylab as pl
+import matplotlib.pyplot as plt
+
+
+def Statistics(func):
+    def wrapper(self):
+        start = time.time()
+        stat = func(self)
+        secs = time.time() - start
+        print("Function %s takes %d seconds!" % (func.__name__, secs))
+        if not (stat is None):
+            plt.plot(stat)
+            plt.show()
+    return wrapper
 
 
 class Form(Ui_Dialog, QWidget):
@@ -37,6 +49,7 @@ class Form(Ui_Dialog, QWidget):
         # self.world = DigiWorld(self.view, self.view1, self.viewLarge, w, h)
         self.loadedData = None
         self.stride2World = World(self.view2, w*2, h*2)
+
 
     def doCircle(self):
         x = self.world.Width // 2
@@ -108,6 +121,7 @@ class Form(Ui_Dialog, QWidget):
             da = self.loadedData['data']
             la = self.loadedData['label']
             print(name + ' data' + str(da.shape) + ' label' + str(la.shape) + ' loaded!')
+            QApplication.processEvents()
             return True
         except Exception as reason:
             strReason = str(reason)
@@ -138,7 +152,9 @@ class Form(Ui_Dialog, QWidget):
                 la = label[row, col]
                 x0, y0 = la >> 12, (la >> 8) & 0xf
                 x, y = row * 2 + x0, col * 2 + y0
-                data[x, y] = Form.newColor(la & 0xff) * 40         # 太暗的拾棄
+                co = la & 0xff
+                # data[x, y] = Form.newColor(co) * 50
+                data[x, y] = 0 if co < 40 else 150  # 1 2 3全顯示150
 
     def randomLine(self):
         x0 = random.randint(1, self.Wid - 2)
@@ -190,6 +206,7 @@ class Form(Ui_Dialog, QWidget):
                 self.saveTrainData()
                 time.sleep(1)
 
+    @Statistics
     def doMergeData(self):
         """
         data/AA/AA0000.npz
@@ -203,7 +220,7 @@ class Form(Ui_Dialog, QWidget):
         dirName = "data/" + pathName
         if not os.path.exists(dirName):
             QMessageBox.information(self, "Info", "目錄<"+dirName+">不存在, 請指定新的目錄名!")
-            return
+            return None
         files = os.listdir(dirName)
         batch = len(files)
         self.loadData(dirName+'/'+files[0])
@@ -235,41 +252,36 @@ class Form(Ui_Dialog, QWidget):
         try:
             np.savez_compressed(name, data=data, label=label)
             print(name + " write success!")
-            pl.plot(range(len(stat)), stat)
-            pl.show()
         except Exception as reason:
             print('Error:' + str(reason))
-
-    @staticmethod
-    def myFloat(byte):
-        if byte == 0:
-            return 0.
-        elif byte > 2:
-            return 0.99
-        elif byte == 1:
-            return 0.33
-        else:
-            return 0.66
+        return stat
 
     @staticmethod
     def translateLabel(label):
         """ from [batch,1,H,W] uint8 to [batch,4,H,W] float
         """
+        # toFloat = (0.0, 0.33, 0.66, 0.99)
         sh = label.shape
         batch = sh[0]
         H = sh[2]
         W = sh[3]
-        la = torch.FloatTensor(batch, 4, H, W)
+        la = torch.LongTensor(batch, 1, H, W)   # 不管邊的強弱了, 0 或4個位置選1 , 五選一
         for n in range(batch):
-            l0 = label[n, 0]
-            la0, la1, la2, la3 = la[n, 0], la[n, 1], la[n, 2], la[n, 3]
+            ln = label[n, 0]
+            lan = la[n, 0]
             for row in range(H):
                 for col in range(W):
-                    val = l0[row, col]
-                    la0[row, col] = Form.myFloat(val & 3)
-                    la1[row, col] = Form.myFloat((val & 12) >> 2)
-                    la2[row, col] = Form.myFloat((val & 48) >> 4)
-                    la3[row, col] = Form.myFloat((val & 192) >> 6)
+                    val = ln[row, col]
+                    if val == 0:
+                        lan[row, col] = 0
+                    elif (val & 3) != 0:
+                        lan[row, col] = 1
+                    elif (val & 12) != 0:
+                        lan[row, col] = 2
+                    elif (val & 48) != 0:
+                        lan[row, col] = 3
+                    else:
+                        lan[row, col] = 4
         return la
 
     def doTraining(self):
@@ -286,6 +298,7 @@ class Form(Ui_Dialog, QWidget):
         for i in range(0, n, batch):
             print(i, end=' ', flush=True)
             x = torch.FloatTensor(data[i:i+batch])
+            print('+', end=' ', flush=True)
             y = Form.translateLabel(label[i:i+batch])
             print('*', end=' ', flush=True)
             pred_y = net.forward(x)

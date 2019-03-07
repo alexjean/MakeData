@@ -2,7 +2,7 @@
 # @Time    : 2018/11/5 下午 06:22
 # @Author  : AlexJean
 import numpy as np
-
+from PyQt5.QtWidgets import QApplication
 
 
 class GaCo:
@@ -32,6 +32,11 @@ class GaCo:
         self.contrastData = np.zeros(stride2dim, np.int32)
         self.forbidLevel = np.zeros(stride2dim, np.int32)
         self.forbidBy = np.zeros(stride2dim, np.object)
+
+    @staticmethod
+    def echo(x, format_str="%d"):
+        print(format_str % x, end=' ', flush=True)
+        QApplication.processEvents()
 
     def getEdgePoint(self, data):
         print('Begin getEdgeList =====================')
@@ -90,7 +95,7 @@ class GaCo:
         w, h = self.Wid // 4, self.Hei // 4
         for x in range(w):
             if x % 20 == 0:
-                print(x, end=' ', flush=True)
+                GaCo.echo(x)
             for y in range(h):
                 data[x, y] = self.valueEdge(x * 4, y * 4) * 10
         print("\ncompleted!")
@@ -100,7 +105,7 @@ class GaCo:
         w2, h2 = self.W2, self.H2
         for x in range(0, w2):
             if x % 20 == 0:
-                print(x, end=' ', flush=True)
+                GaCo.echo(x)
             for y in range(0, h2):
                 self.stride2[x, y] = self.valueEdge(x * 2, y * 2)  # 這個值拿來算Variance的,先不乘10
         print("\ncompleted!")
@@ -110,7 +115,7 @@ class GaCo:
         w2, h2 = self.W2, self.H2
         for x in range(2, w2-2):
             if x % 10 == 0:
-                print("%3d" % x, end=' ', flush=True)
+                GaCo.echo(x, "%3d")
                 if x % 200 == 0:
                     print(' ')
             for y in range(2, h2-2):
@@ -198,7 +203,7 @@ class GaCo:
 
         for x in range(2, w-2):
             if x % 10 == 0:
-                print(x, end=' ', flush=True)
+                GaCo.echo(x)
             for y in range(2, h-2):
                 x1, y1 = x * 2, y * 2
                 x2, y2, var = self.maxContrastAll(x1, y1)
