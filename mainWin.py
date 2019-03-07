@@ -17,7 +17,6 @@ import torch
 import pylab as pl
 
 
-
 class Form(Ui_Dialog, QWidget):
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
@@ -198,7 +197,7 @@ class Form(Ui_Dialog, QWidget):
         label = [200,200] uint16=00xx00yy cccccccc, 最小編碼為onehot可用4個bit,全0 或最多一個1
         為方便取batch, 將檔案merge為
         data = [batch,1,200,200]  uint8
-        label = [batch,1,200,200] uint8  ,4output每個output佔2bit預留空間
+        label = [batch,1,200,200] uint8  ,4output每個output佔2bit空間
         """
         pathName = self.edPath.text().strip()
         dirName = "data/" + pathName
@@ -209,7 +208,7 @@ class Form(Ui_Dialog, QWidget):
         batch = len(files)
         self.loadData(dirName+'/'+files[0])
         (h, w) = self.loadedData['data'].shape
-        data  = np.zeros([batch, 1, h, w], np.uint8)
+        data = np.zeros([batch, 1, h, w], np.uint8)
         label = np.zeros([batch, 1, h, w], np.uint8)
         i = 0
         stat = np.zeros([26], np.int32)
@@ -241,25 +240,61 @@ class Form(Ui_Dialog, QWidget):
         except Exception as reason:
             print('Error:' + str(reason))
 
-    def convertData(self, i):
-        self.loadData(self.fileName(i))
-        x = torch.Tensor(self.loadedWorld.Data).float()
-        x /= 255.
-        y = torch.Tensor(self.loadedWorld.trainLabel).float()
-        return x, y
+    @staticmethod
+    def myFloat(byte):
+        if byte == 0:
+            return 0.
+        elif byte > 2:
+            return 0.99
+        elif byte == 1:
+            return 0.33
+        else:
+            return 0.66
+
+    @staticmethod
+    def translateLabel(label):
+        """ from [batch,1,H,W] uint8 to [batch,4,H,W] float
+        """
+        sh = label.shape
+        batch = sh[0]
+        H = sh[2]
+        W = sh[3]
+        la = torch.FloatTensor(batch, 4, H, W)
+        for n in range(batch):
+            l0 = label[n, 0]
+            la0, la1, la2, la3 = la[n, 0], la[n, 1], la[n, 2], la[n, 3]
+            for row in range(H):
+                for col in range(W):
+                    val = l0[row, col]
+                    la0[row, col] = Form.myFloat(val & 3)
+                    la1[row, col] = Form.myFloat((val & 12) >> 2)
+                    la2[row, col] = Form.myFloat((val & 48) >> 4)
+                    la3[row, col] = Form.myFloat((val & 192) >> 6)
+        return la
 
     def doTraining(self):
+        pathName = self.edPath.text().strip()
+        name = "data/Full" + pathName + ".npz"
+        loaded = np.load(name)
+        data = loaded["data"].astype(float)/255.0
+        label = loaded["label"]
+        n = len(data)
+        batch = 20
         net = Neural.Net()
         optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
         lossFunc = torch.nn.CrossEntropyLoss()
-        for i in range(1000):
-            x, y = self.convertData(i)
-            # pred_y = net.forward(x)
-            # loss = lossFunc(pred_y, y)
-            # print("<%3d> %.4f" % (i, loss))
-            # optimizer.zero_grad()
-            # loss.backward()
-            # optimizer.step()
+        for i in range(0, n, batch):
+            print(i, end=' ', flush=True)
+            x = torch.FloatTensor(data[i:i+batch])
+            y = Form.translateLabel(label[i:i+batch])
+            print('*', end=' ', flush=True)
+            pred_y = net.forward(x)
+            loss = lossFunc(pred_y, y)
+            print("<%3d> %.4f" % (i, loss))
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
