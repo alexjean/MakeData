@@ -50,7 +50,6 @@ class Form(Ui_Dialog, QWidget):
         self.loadedData = None
         self.stride2World = World(self.view2, w*2, h*2)
 
-
     def doCircle(self):
         x = self.world.Width // 2
         y = self.world.Height // 2
@@ -177,7 +176,7 @@ class Form(Ui_Dialog, QWidget):
         co = 0 if random.randint(0, 2) == 0 else 254
         self.world.drawCircle(x, y, r, co)
 
-    def doGenerate(self):
+    def doRandDraw(self):
         for no in range(30):
             if random.randint(0, 2) == 0:
                 self.randomCircle()
