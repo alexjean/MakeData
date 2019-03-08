@@ -111,7 +111,7 @@ class Ui_Dialog(object):
         self.btnLoad.setText(_translate("Dialog", "Load"))
         self.btnBatchGenerateLabel.setText(_translate("Dialog", "BatchGenerateLabel"))
         self.label_2.setText(_translate("Dialog", "on Directory"))
-        self.edPath.setText(_translate("Dialog", "AB"))
+        self.edPath.setText(_translate("Dialog", "All"))
         self.btnTraining.setText(_translate("Dialog", "Training"))
         self.btnMergeData.setText(_translate("Dialog", "MergeData"))
         self.btnCircle.setText(_translate("Dialog", "DrawCircle"))

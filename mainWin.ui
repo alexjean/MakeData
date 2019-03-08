@@ -154,7 +154,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>AB</string>
+    <string>All</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnTraining">

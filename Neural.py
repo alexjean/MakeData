@@ -8,7 +8,7 @@ import torch.nn.init as init
 
 class Net(nn.Module):
 
-    LearningRate = 0.0001
+    LearningRate = 0.00002
 
     def __init__(self):
         super(Net, self).__init__()
@@ -24,8 +24,7 @@ class Net(nn.Module):
         x = torch.tanh(self.conv1(x))
         x = torch.tanh(self.conv2(x))
         x = torch.tanh(self.conv3(x))
-        x = self.conv4(x)
-        x = torch.softmax(x, 1)           # [batch, 5, H, W]
+        x = torch.softmax(self.conv4(x), 1)           # [batch, 5, H, W]
         return x
 
     def _initialize_weights(self):

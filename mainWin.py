@@ -213,7 +213,7 @@ class Form(Ui_Dialog, QWidget):
         label = [200,200] uint16=00xx00yy cccccccc, 最小編碼為onehot可用4個bit,全0 或最多一個1
         為方便取batch, 將檔案merge為
         data = [batch,1,200,200]  uint8
-        label = [batch,1,200,200] uint8  ,4output每個output佔2bit空間
+        label = [batch,200,200] uint8  , [0...4] graylevel ignore
         """
         pathName = self.edPath.text().strip()
         dirName = "data/" + pathName
@@ -225,7 +225,7 @@ class Form(Ui_Dialog, QWidget):
         self.loadData(dirName+'/'+files[0])
         (h, w) = self.loadedData['data'].shape
         data = np.zeros([batch, 1, h, w], np.uint8)
-        label = np.zeros([batch, 1, h, w], np.uint8)
+        label = np.zeros([batch, h, w], np.uint8)
         i = 0
         stat = np.zeros([26], np.int32)
         for fi in files:
@@ -235,17 +235,22 @@ class Form(Ui_Dialog, QWidget):
             da = self.loadedData['data']
             la = self.loadedData['label']
             data[i, 0] = da.astype(np.uint8)
-            li0 = label[i, 0]
+            li0 = label[i]
             for row in range(h):
                 for col in range(w):
                     l1 = la[row, col]
                     co = l1 & 0xff
                     if co != 0:              # 0 太多了
                         stat[co//10] += 1    # co是16點計邊 * 10來的
-                    x = (l1 >> 12) & 1
-                    y = (l1 >> 8) & 1
-                    b1 = Form.newColor(co) << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0
-                    li0[row, col] = b1 & 0xff
+                    # 原本為保留grayLevel 0...3的編碼
+                    #x = (l1 >> 12) & 1
+                    #y = (l1 >> 8) & 1
+                    #b1 = Form.newColor(co) << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0
+                    #li0[row, col] = b1 & 0xff
+                    if co >= 40:                          # < 40 編碼 0
+                        x = (l1 >> 12) & 1
+                        y = (l1 >> 8) & 1
+                        li0[row, col] = 2 * x + y + 1     # 有, 依位置編1..4
             i = i + 1
         name = "data/Full"+pathName+".npz"
         try:
@@ -255,58 +260,34 @@ class Form(Ui_Dialog, QWidget):
             print('Error:' + str(reason))
         return stat
 
-    @staticmethod
-    def translateLabel(label):
-        """ from [batch,1,H,W] uint8 to [batch,4,H,W] float
-        """
-        # toFloat = (0.0, 0.33, 0.66, 0.99)
-        sh = label.shape
-        batch = sh[0]
-        H = sh[2]
-        W = sh[3]
-        la = torch.LongTensor(batch, 1, H, W)   # 不管邊的強弱了, 0 或4個位置選1 , 五選一
-        for n in range(batch):
-            ln = label[n, 0]
-            lan = la[n, 0]
-            for row in range(H):
-                for col in range(W):
-                    val = ln[row, col]
-                    if val == 0:
-                        lan[row, col] = 0
-                    elif (val & 3) != 0:
-                        lan[row, col] = 1
-                    elif (val & 12) != 0:
-                        lan[row, col] = 2
-                    elif (val & 48) != 0:
-                        lan[row, col] = 3
-                    else:
-                        lan[row, col] = 4
-        return la
-
+    @Statistics
     def doTraining(self):
         pathName = self.edPath.text().strip()
         name = "data/Full" + pathName + ".npz"
+        print("Loading data from "+name)
         loaded = np.load(name)
         data = loaded["data"].astype(float)/255.0
         label = loaded["label"]
         n = len(data)
         batch = 20
-        net = Neural.Net()
+        net = Neural.Net().cuda()
         optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
-        lossFunc = torch.nn.CrossEntropyLoss()
+        lossFunc = torch.nn.CrossEntropyLoss().cuda()
         for i in range(0, n, batch):
-            print(i, end=' ', flush=True)
-            x = torch.FloatTensor(data[i:i+batch])
+            print("<%03d>" % (i//batch), end=' ', flush=True)
+            x = torch.cuda.FloatTensor(data[i:i+batch])
             print('+', end=' ', flush=True)
-            y = Form.translateLabel(label[i:i+batch])
+            y = torch.cuda.LongTensor(label[i:i+batch])
             print('*', end=' ', flush=True)
             pred_y = net.forward(x)
-            loss = lossFunc(pred_y, y)
-            print("<%3d> %.4f" % (i, loss))
+            loss = lossFunc(pred_y, y)      #  pred_y : FloatTensor(N,C,H,W)  where C = number of classes
+                                            #  y      : LongTensor(N,H,W)     where each value in range(C) .
+            print("loss = %.4f" % loss)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
+            QApplication.processEvents()
+        return None
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
