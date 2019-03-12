@@ -154,7 +154,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>All</string>
+    <string>All1</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnTraining">
@@ -295,7 +295,7 @@
    <sender>btnSave</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>saveTrainData()</slot>
+   <slot>doSaveData()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>57</x>
@@ -423,7 +423,6 @@
  <slots>
   <slot>doLine()</slot>
   <slot>clearWorld()</slot>
-  <slot>saveTrainData()</slot>
   <slot>calcTrainLabel()</slot>
   <slot>doCircle()</slot>
   <slot>doTraining()</slot>
@@ -431,5 +430,6 @@
   <slot>doLoadData()</slot>
   <slot>doBatchGenerateLabel()</slot>
   <slot>doRandDraw()</slot>
+  <slot>doSaveData()</slot>
  </slots>
 </ui>

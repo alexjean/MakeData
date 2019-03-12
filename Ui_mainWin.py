@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'mainWin.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -93,7 +94,7 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         self.btnLine.clicked.connect(Dialog.doLine)
         self.btnClear.clicked.connect(Dialog.clearWorld)
-        self.btnSave.clicked.connect(Dialog.saveTrainData)
+        self.btnSave.clicked.connect(Dialog.doSaveData)
         self.btnLoad.clicked.connect(Dialog.doLoadData)
         self.btnCalcTrainLabel.clicked.connect(Dialog.calcTrainLabel)
         self.btnCircle.clicked.connect(Dialog.doCircle)
@@ -114,7 +115,7 @@ class Ui_Dialog(object):
         self.btnLoad.setText(_translate("Dialog", "Load"))
         self.btnBatchGenerateLabel.setText(_translate("Dialog", "BatchGenerateLabel"))
         self.label_2.setText(_translate("Dialog", "on Directory"))
-        self.edPath.setText(_translate("Dialog", "All"))
+        self.edPath.setText(_translate("Dialog", "All1"))
         self.btnTraining.setText(_translate("Dialog", "Training"))
         self.btnMergeData.setText(_translate("Dialog", "MergeData"))
         self.btnCircle.setText(_translate("Dialog", "DrawCircle"))
@@ -123,4 +124,5 @@ class Ui_Dialog(object):
         self.btnCalcTrainLabel.setText(_translate("Dialog", "CalcLabel"))
         self.btnClear.setText(_translate("Dialog", "Clear"))
         self.chBoxDrawPredict.setText(_translate("Dialog", "DrawPredict"))
+
 

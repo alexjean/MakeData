@@ -94,7 +94,7 @@ class Form(Ui_Dialog, QWidget):
             name += "{:0>4d}".format(intVal) + '.npz'
         return name
 
-    def saveTrainData(self):
+    def doSaveData(self):
         name = self.fileName()
         try:
             np.savez_compressed(name, data=self.world.div4World.Data, label=self.world.div4World.trainLabel)
@@ -186,6 +186,7 @@ class Form(Ui_Dialog, QWidget):
         self.world.before_repaint()
         self.world.repaint()
 
+    @Statistics
     def doBatchGenerateLabel(self):
         if not os.path.exists('data'):
             os.mkdir('data')
@@ -200,10 +201,11 @@ class Form(Ui_Dialog, QWidget):
             for i in range(1000):
                 self.sboxTrainFileName.setValue(i)
                 self.clearWorld()
-                self.doGenerate()
+                self.doRandDraw()
                 self.calcTrainLabel()
-                self.saveTrainData()
-                time.sleep(1)
+                self.doSaveData()
+                QApplication.processEvents()
+        return None
 
     @Statistics
     def doMergeData(self):
@@ -262,6 +264,36 @@ class Form(Ui_Dialog, QWidget):
             print('Error:' + str(reason))
         return stat
 
+    def showPredict(self, data, pred):
+        H = data.shape[0]
+        W = data.shape[1]
+        self.world.div4World.Data = data
+        self.world.div4World.repaint()
+        # pred2Draw = np.zeros((H, W), np.uint8)
+        if pred.shape[0] == 2:
+            pred2Draw = torch.argmax(pred, 0).cpu().numpy() * 150
+            self.loadedWorld.Data = pred2Draw
+            self.loadedWorld.repaint()
+        else:
+            label = torch.argmax(pred, 0).cpu().numpy()
+            pred2Draw = np.zeros((H * 2, W * 2), np.uint8)
+            for row in range(H):
+                for col in range(W):
+                    cl = label[row, col]
+                    if  cl == 0:
+                        continue
+                    h2, w2 = row * 2, col * 2
+                    if cl == 1:
+                        pred2Draw[h2, w2] = 150
+                    elif cl == 2:
+                        pred2Draw[h2, w2 + 1] = 150
+                    elif cl == 3:
+                        pred2Draw[h2 + 1, w2] = 150
+                    elif cl == 4:
+                        pred2Draw[h2 + 1, w2 + 1] = 150
+            self.stride2World.Data = pred2Draw
+            self.stride2World.repaint()
+
     @Statistics
     def doTraining(self):
         pathName = self.edPath.text().strip()
@@ -273,8 +305,6 @@ class Form(Ui_Dialog, QWidget):
         label = loaded["label"]
         n = len(data)
         batch = 1
-        H = data.shape[2]
-        W = data.shape[3]
         net = Neural.Net().cuda()
         optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
         lossFunc = torch.nn.CrossEntropyLoss().cuda()
@@ -294,14 +324,14 @@ class Form(Ui_Dialog, QWidget):
             optimizer.step()
             print(' ')
             if self.chBoxDrawPredict.isChecked():
-                # pred2Draw = np.zeros((H, W), np.uint8)
-                pred2Draw = torch.argmax(pred_y[0], 0).cpu().numpy() * 150
-                self.world.div4World.Data = byteData[0, 0]
-                self.loadedWorld.Data = pred2Draw
-                self.world.div4World.repaint()
-                self.loadedWorld.repaint()
-                time.sleep(0.2)
+                self.showPredict(byteData[0, 0], pred_y[0])
             QApplication.processEvents()
+        name = "data/Net" + pathName + ".npz"
+        try:
+            np.savez_compressed(name, net=net.cpu())
+            print(name + " write success!")
+        except Exception as reason:
+            print('Error:' + str(reason))
         return None
 
 if __name__ == '__main__':

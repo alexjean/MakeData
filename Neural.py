@@ -17,7 +17,7 @@ class Net(nn.Module):
         self.conv1 = nn.Conv2d(1, 128, (5, 5), stride=(1, 1), padding=(2, 2))
         self.conv2 = nn.Conv2d(128, 128, (3, 3), (1, 1), (1, 1))
         self.conv3 = nn.Conv2d(128, 64, (3, 3), (1, 1), (1, 1))
-        self.conv4 = nn.Conv2d(64,  2, (3, 3), (1, 1), (1, 1))
+        self.conv4 = nn.Conv2d(64,  5, (3, 3), (1, 1), (1, 1))
         self._initialize_weights()
 
     def forward(self, x):
