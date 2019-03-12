@@ -248,9 +248,11 @@ class Form(Ui_Dialog, QWidget):
                     #b1 = Form.newColor(co) << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0
                     #li0[row, col] = b1 & 0xff
                     if co >= 40:                          # < 40 編碼 0
-                        x = (l1 >> 12) & 1
-                        y = (l1 >> 8) & 1
-                        li0[row, col] = 2 * x + y + 1     # 有, 依位置編1..4
+                        li0[row, col] = 1
+                        #x = (l1 >> 12) & 1
+                        #y = (l1 >> 8) & 1
+                        #li0[row, col] = 2 * x + y + 1     # 有, 依位置編1..4
+
             i = i + 1
         name = "data/Full"+pathName+".npz"
         try:
@@ -266,26 +268,39 @@ class Form(Ui_Dialog, QWidget):
         name = "data/Full" + pathName + ".npz"
         print("Loading data from "+name)
         loaded = np.load(name)
-        data = loaded["data"].astype(float)/255.0
+        #data = loaded["data"].astype(float)/255.0
+        data = loaded["data"]
         label = loaded["label"]
         n = len(data)
-        batch = 20
+        batch = 1
+        H = data.shape[2]
+        W = data.shape[3]
         net = Neural.Net().cuda()
         optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
         lossFunc = torch.nn.CrossEntropyLoss().cuda()
         for i in range(0, n, batch):
             print("<%03d>" % (i//batch), end=' ', flush=True)
-            x = torch.cuda.FloatTensor(data[i:i+batch])
+            byteData = data[i:i+batch]
+            x = torch.cuda.FloatTensor(byteData.astype(float) / 255.0)
             print('+', end=' ', flush=True)
             y = torch.cuda.LongTensor(label[i:i+batch])
             print('*', end=' ', flush=True)
             pred_y = net.forward(x)
-            loss = lossFunc(pred_y, y)      #  pred_y : FloatTensor(N,C,H,W)  where C = number of classes
-                                            #  y      : LongTensor(N,H,W)     where each value in range(C) .
-            print("loss = %.4f" % loss)
+            loss = lossFunc(pred_y, y)  # pred_y : FloatTensor(N,C,H,W)  where C = number of classes
+            #  y      : LongTensor(N,H,W)     where each value in range(C) .
+            print("%.4f " % loss, end=' ', flush=True)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            print(' ')
+            if self.chBoxDrawPredict.isChecked():
+                # pred2Draw = np.zeros((H, W), np.uint8)
+                pred2Draw = torch.argmax(pred_y[0], 0).cpu().numpy() * 150
+                self.world.div4World.Data = byteData[0, 0]
+                self.loadedWorld.Data = pred2Draw
+                self.world.div4World.repaint()
+                self.loadedWorld.repaint()
+                time.sleep(0.2)
             QApplication.processEvents()
         return None
 

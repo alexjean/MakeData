@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'mainWin.ui'
 #
-# Created by: PyQt5 UI code generator 5.12
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -24,35 +23,35 @@ class Ui_Dialog(object):
         self.view1.setGeometry(QtCore.QRect(218, 10, 204, 204))
         self.view1.setObjectName("view1")
         self.btnSave = QtWidgets.QPushButton(Dialog)
-        self.btnSave.setGeometry(QtCore.QRect(180, 650, 75, 23))
+        self.btnSave.setGeometry(QtCore.QRect(150, 650, 75, 23))
         self.btnSave.setObjectName("btnSave")
         self.leTrainFileName = QtWidgets.QLineEdit(Dialog)
-        self.leTrainFileName.setGeometry(QtCore.QRect(180, 680, 71, 20))
+        self.leTrainFileName.setGeometry(QtCore.QRect(150, 680, 71, 20))
         self.leTrainFileName.setObjectName("leTrainFileName")
         self.sboxTrainFileName = QtWidgets.QSpinBox(Dialog)
-        self.sboxTrainFileName.setGeometry(QtCore.QRect(270, 680, 51, 22))
+        self.sboxTrainFileName.setGeometry(QtCore.QRect(240, 680, 51, 22))
         self.sboxTrainFileName.setMaximum(9999)
         self.sboxTrainFileName.setObjectName("sboxTrainFileName")
         self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(260, 680, 21, 21))
+        self.label.setGeometry(QtCore.QRect(230, 680, 21, 21))
         self.label.setObjectName("label")
         self.btnLoad = QtWidgets.QPushButton(Dialog)
-        self.btnLoad.setGeometry(QtCore.QRect(270, 650, 75, 23))
+        self.btnLoad.setGeometry(QtCore.QRect(240, 650, 75, 23))
         self.btnLoad.setObjectName("btnLoad")
         self.view2 = QtWidgets.QGraphicsView(Dialog)
         self.view2.setGeometry(QtCore.QRect(12, 218, 404, 404))
         self.view2.setObjectName("view2")
         self.btnBatchGenerateLabel = QtWidgets.QPushButton(Dialog)
-        self.btnBatchGenerateLabel.setGeometry(QtCore.QRect(180, 710, 111, 31))
+        self.btnBatchGenerateLabel.setGeometry(QtCore.QRect(150, 710, 111, 31))
         self.btnBatchGenerateLabel.setObjectName("btnBatchGenerateLabel")
         self.label_2 = QtWidgets.QLabel(Dialog)
-        self.label_2.setGeometry(QtCore.QRect(180, 750, 61, 16))
+        self.label_2.setGeometry(QtCore.QRect(150, 750, 61, 16))
         self.label_2.setObjectName("label_2")
         self.edPath = QtWidgets.QLineEdit(Dialog)
-        self.edPath.setGeometry(QtCore.QRect(250, 750, 91, 20))
+        self.edPath.setGeometry(QtCore.QRect(220, 750, 71, 20))
         self.edPath.setObjectName("edPath")
         self.btnTraining = QtWidgets.QPushButton(Dialog)
-        self.btnTraining.setGeometry(QtCore.QRect(180, 780, 161, 31))
+        self.btnTraining.setGeometry(QtCore.QRect(150, 780, 141, 31))
         self.btnTraining.setObjectName("btnTraining")
         self.btnMergeData = QtWidgets.QPushButton(Dialog)
         self.btnMergeData.setGeometry(QtCore.QRect(300, 710, 75, 31))
@@ -71,6 +70,9 @@ class Ui_Dialog(object):
         self.btnCalcTrainLabel.setObjectName("btnCalcTrainLabel")
         self.btnClear = QtWidgets.QPushButton(self.splitter)
         self.btnClear.setObjectName("btnClear")
+        self.chBoxDrawPredict = QtWidgets.QCheckBox(Dialog)
+        self.chBoxDrawPredict.setGeometry(QtCore.QRect(300, 790, 81, 16))
+        self.chBoxDrawPredict.setObjectName("chBoxDrawPredict")
         self.splitter.raise_()
         self.view.raise_()
         self.viewLarge.raise_()
@@ -86,6 +88,7 @@ class Ui_Dialog(object):
         self.edPath.raise_()
         self.btnTraining.raise_()
         self.btnMergeData.raise_()
+        self.chBoxDrawPredict.raise_()
 
         self.retranslateUi(Dialog)
         self.btnLine.clicked.connect(Dialog.doLine)
@@ -119,5 +122,5 @@ class Ui_Dialog(object):
         self.btnRandDraw.setText(_translate("Dialog", "RandDraw"))
         self.btnCalcTrainLabel.setText(_translate("Dialog", "CalcLabel"))
         self.btnClear.setText(_translate("Dialog", "Clear"))
-
+        self.chBoxDrawPredict.setText(_translate("Dialog", "DrawPredict"))
 
