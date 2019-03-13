@@ -182,9 +182,31 @@ class Form(Ui_Dialog, QWidget):
                 self.randomCircle()
             else:
                 self.randomLine()
-
         self.world.before_repaint()
         self.world.repaint()
+
+    def doPatch(self):
+        QMessageBox.information(self, "Info", "開始補足data目錄內未完成Generate!")
+        dirs = os.listdir("data/")
+        for di in dirs:
+            subdir = "data/"+di
+            if os.path.isdir(subdir):
+                sublist = os.listdir(subdir)
+                lenSub = len(sublist)
+                print("Dir<%s> Total %d " % (subdir, lenSub))
+                if lenSub < 1000:
+                    for i in range(lenSub-1 if lenSub > 0 else 0, 1000):
+                        # 覆蓋最後一個, 沒完成可能最後一個也是壞的
+                        self.generateOne(di, i)
+
+    def generateOne(self, pathName, i):
+        self.leTrainFileName.setText(pathName + "/" + pathName)
+        self.sboxTrainFileName.setValue(i)
+        self.clearWorld()
+        self.doRandDraw()
+        self.calcTrainLabel()
+        self.doSaveData()
+        QApplication.processEvents()
 
     @Statistics
     def doBatchGenerateLabel(self):
@@ -197,15 +219,18 @@ class Form(Ui_Dialog, QWidget):
         else:
             os.mkdir(dirName)
             QMessageBox.information(self, "Info", "目錄<"+dirName+">己建立, 開始創造訓練資料!")
-            self.leTrainFileName.setText(pathName+"/"+pathName)
             for i in range(1000):
-                self.sboxTrainFileName.setValue(i)
-                self.clearWorld()
-                self.doRandDraw()
-                self.calcTrainLabel()
-                self.doSaveData()
-                QApplication.processEvents()
+                self.generateOne(pathName, i)
         return None
+
+    def paddingNameClassNo(self, padding):
+        if self.comboClassNo.currentText().strip() == '5':
+            classNo = 5
+        else:
+            classNo = 2
+        pathName = self.edPath.text().strip()
+        fullName = "data/" + padding + pathName + str(classNo) + ".npz"
+        return fullName, classNo
 
     @Statistics
     def doMergeData(self):
@@ -230,6 +255,7 @@ class Form(Ui_Dialog, QWidget):
         label = np.zeros([batch, h, w], np.uint8)
         i = 0
         stat = np.zeros([26], np.int32)
+        fullName, classNo = self.paddingNameClassNo("Full")
         for fi in files:
             if not fi.lower().endswith('.npz'):
                 continue
@@ -250,16 +276,17 @@ class Form(Ui_Dialog, QWidget):
                     #b1 = Form.newColor(co) << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0
                     #li0[row, col] = b1 & 0xff
                     if co >= 40:                          # < 40 編碼 0
-                        li0[row, col] = 1
-                        #x = (l1 >> 12) & 1
-                        #y = (l1 >> 8) & 1
-                        #li0[row, col] = 2 * x + y + 1     # 有, 依位置編1..4
+                        if classNo == 2:
+                            li0[row, col] = 1
+                        else:
+                            x = (l1 >> 12) & 1
+                            y = (l1 >> 8) & 1
+                            li0[row, col] = 2 * x + y + 1     # 有, 依位置編1..4  共5 classes
 
             i = i + 1
-        name = "data/Full"+pathName+".npz"
         try:
-            np.savez_compressed(name, data=data, label=label)
-            print(name + " write success!")
+            np.savez_compressed(fullName, data=data, label=label)
+            print(fullName + " write success!")
         except Exception as reason:
             print('Error:' + str(reason))
         return stat
@@ -280,7 +307,7 @@ class Form(Ui_Dialog, QWidget):
             for row in range(H):
                 for col in range(W):
                     cl = label[row, col]
-                    if  cl == 0:
+                    if cl == 0:
                         continue
                     h2, w2 = row * 2, col * 2
                     if cl == 1:
@@ -296,16 +323,21 @@ class Form(Ui_Dialog, QWidget):
 
     @Statistics
     def doTraining(self):
-        pathName = self.edPath.text().strip()
-        name = "data/Full" + pathName + ".npz"
-        print("Loading data from "+name)
-        loaded = np.load(name)
+        fullName, classNo = self.paddingNameClassNo("Full")
+        if not os.path.exists(fullName):
+            QMessageBox.information(self, "Info", "檔案" + fullName + " 不存在!")
+            return None
+        elif (not os.path.isfile(fullName)):
+            QMessageBox.information(self, "Info", "<" + fullName + "> 不是檔案!")
+            return None
+        print("Loading data from "+fullName)
+        loaded = np.load(fullName)
         #data = loaded["data"].astype(float)/255.0
         data = loaded["data"]
         label = loaded["label"]
         n = len(data)
         batch = 1
-        net = Neural.Net().cuda()
+        net = Neural.Net(classNo).cuda()
         optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
         lossFunc = torch.nn.CrossEntropyLoss().cuda()
         for i in range(0, n, batch):
@@ -326,10 +358,10 @@ class Form(Ui_Dialog, QWidget):
             if self.chBoxDrawPredict.isChecked():
                 self.showPredict(byteData[0, 0], pred_y[0])
             QApplication.processEvents()
-        name = "data/Net" + pathName + ".npz"
         try:
-            np.savez_compressed(name, net=net.cpu())
-            print(name + " write success!")
+            netName, _ = self.paddingNameClassNo("Net")
+            np.savez_compressed(netName, net=net.cpu())
+            print(netName + " write success!")
         except Exception as reason:
             print('Error:' + str(reason))
         return None
