@@ -46,7 +46,7 @@
   <widget class="QPushButton" name="btnSave">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>180</x>
      <y>630</y>
      <width>51</width>
      <height>23</height>
@@ -59,7 +59,7 @@
   <widget class="QLineEdit" name="leTrainFileName">
    <property name="geometry">
     <rect>
-     <x>210</x>
+     <x>240</x>
      <y>630</y>
      <width>51</width>
      <height>21</height>
@@ -72,7 +72,7 @@
   <widget class="QSpinBox" name="sboxTrainFileName">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>290</x>
      <y>630</y>
      <width>51</width>
      <height>21</height>
@@ -85,9 +85,9 @@
   <widget class="QPushButton" name="btnLoad">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>350</x>
      <y>630</y>
-     <width>61</width>
+     <width>51</width>
      <height>23</height>
     </rect>
    </property>
@@ -105,49 +105,23 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="btnBatchGenerateLabel">
+  <widget class="QPushButton" name="btnBatchMonoCalcLabel">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>670</y>
-     <width>111</width>
-     <height>31</height>
+     <x>180</x>
+     <y>660</y>
+     <width>141</width>
+     <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>BatchGenerateLabel</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>710</y>
-     <width>61</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>on Directory</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="edPath">
-   <property name="geometry">
-    <rect>
-     <x>220</x>
-     <y>710</y>
-     <width>71</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>All</string>
+    <string>BatchMonoCalcLabel</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnTraining">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>180</x>
      <y>740</y>
      <width>141</width>
      <height>31</height>
@@ -157,61 +131,10 @@
     <string>Training</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="btnMergeData">
-   <property name="geometry">
-    <rect>
-     <x>300</x>
-     <y>700</y>
-     <width>75</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>MergeData</string>
-   </property>
-  </widget>
-  <widget class="QSplitter" name="splitter">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>630</y>
-     <width>81</width>
-     <height>151</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Vertical</enum>
-   </property>
-   <widget class="QPushButton" name="btnCircle">
-    <property name="text">
-     <string>DrawCircle</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnLine">
-    <property name="text">
-     <string>DrawLine</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnRandDraw">
-    <property name="text">
-     <string>RandDraw</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnCalcTrainLabel">
-    <property name="text">
-     <string>CalcLabel</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnClear">
-    <property name="text">
-     <string>Clear</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="QCheckBox" name="chBoxDrawPredict">
    <property name="geometry">
     <rect>
-     <x>180</x>
+     <x>210</x>
      <y>780</y>
      <width>81</width>
      <height>16</height>
@@ -224,51 +147,150 @@
   <widget class="QPushButton" name="btnPatch">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>670</y>
-     <width>75</width>
-     <height>23</height>
+     <x>330</x>
+     <y>660</y>
+     <width>71</width>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
     <string>Patch</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="comboClassNo">
+  <widget class="QPushButton" name="btnClear">
    <property name="geometry">
     <rect>
-     <x>300</x>
-     <y>750</y>
-     <width>31</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="maxCount">
-    <number>2</number>
-   </property>
-   <item>
-    <property name="text">
-     <string>2</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>5</string>
-    </property>
-   </item>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>750</y>
-     <width>47</width>
-     <height>21</height>
+     <x>10</x>
+     <y>790</y>
+     <width>75</width>
+     <height>23</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Classes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>Clear</string>
    </property>
+  </widget>
+  <widget class="QPushButton" name="btnBatchGrayDirectLabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>740</y>
+     <width>151</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>BatchGrayDirectLabel</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>630</y>
+     <width>158</width>
+     <height>54</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0">
+     <widget class="QPushButton" name="btnCircle">
+      <property name="text">
+       <string>DrawCircle</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="btnLine">
+      <property name="text">
+       <string>DrawLine</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="btnRandDraw">
+      <property name="text">
+       <string>RandDraw</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QPushButton" name="btnCalcTrainLabel">
+      <property name="text">
+       <string>CalcLabel</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>700</y>
+     <width>221</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Batch on</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="edPath">
+      <property name="text">
+       <string>All</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnMergeData">
+      <property name="text">
+       <string>MergeData</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>741</y>
+     <width>73</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QComboBox" name="comboClassNo">
+      <property name="maxCount">
+       <number>2</number>
+      </property>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>5</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Classes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <zorder>splitter</zorder>
   <zorder>view</zorder>
@@ -279,56 +301,23 @@
   <zorder>sboxTrainFileName</zorder>
   <zorder>btnLoad</zorder>
   <zorder>view2</zorder>
-  <zorder>btnBatchGenerateLabel</zorder>
-  <zorder>label_2</zorder>
+  <zorder>btnBatchMonoCalcLabel</zorder>
   <zorder>edPath</zorder>
   <zorder>btnTraining</zorder>
-  <zorder>btnMergeData</zorder>
   <zorder>chBoxDrawPredict</zorder>
   <zorder>btnPatch</zorder>
   <zorder>comboClassNo</zorder>
   <zorder>label</zorder>
+  <zorder>btnClear</zorder>
+  <zorder>btnBatchGrayDirectLabel</zorder>
  </widget>
  <tabstops>
-  <tabstop>btnClear</tabstop>
   <tabstop>btnLine</tabstop>
   <tabstop>view</tabstop>
   <tabstop>viewLarge</tabstop>
  </tabstops>
  <resources/>
  <connections>
-  <connection>
-   <sender>btnLine</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>doLine()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>57</x>
-     <y>701</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>510</x>
-     <y>372</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnClear</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>clearWorld()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>977</x>
-     <y>81</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>525</x>
-     <y>414</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>btnSave</sender>
    <signal>clicked()</signal>
@@ -362,58 +351,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnCalcTrainLabel</sender>
+   <sender>btnBatchMonoCalcLabel</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
-   <slot>calcTrainLabel()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>150</x>
-     <y>551</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>540</x>
-     <y>414</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnCircle</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>doCircle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>57</x>
-     <y>681</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>621</x>
-     <y>420</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnRandDraw</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>doRandDraw()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>57</x>
-     <y>781</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>621</x>
-     <y>420</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnBatchGenerateLabel</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
-   <slot>doBatchGenerateLabel()</slot>
+   <slot>doBatchMonoCalcLabel()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>330</x>
@@ -473,6 +414,102 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btnClear</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>clearWorld()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>977</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>525</x>
+     <y>414</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnCalcTrainLabel</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>calcTrainLabel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>150</x>
+     <y>551</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>540</x>
+     <y>414</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnRandDraw</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>doRandDraw()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>781</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>621</x>
+     <y>420</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnLine</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>doLine()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>701</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnCircle</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>doCircle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>681</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>621</x>
+     <y>420</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnBatchGrayDirectLabel</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>doBatchGrayDirectLabel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>90</x>
+     <y>745</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>620</x>
+     <y>420</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>doLine()</slot>
@@ -482,9 +519,10 @@
   <slot>doTraining()</slot>
   <slot>doMergeData()</slot>
   <slot>doLoadData()</slot>
-  <slot>doBatchGenerateLabel()</slot>
   <slot>doRandDraw()</slot>
   <slot>doSaveData()</slot>
   <slot>doPatch()</slot>
+  <slot>doBatchMonoCalcLabel()</slot>
+  <slot>doBatchGrayDirectLabel()</slot>
  </slots>
 </ui>

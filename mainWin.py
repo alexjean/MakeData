@@ -209,7 +209,7 @@ class Form(Ui_Dialog, QWidget):
         QApplication.processEvents()
 
     @Statistics
-    def doBatchGenerateLabel(self):
+    def doBatchMonoCalcLabel(self):
         if not os.path.exists('data'):
             os.mkdir('data')
         pathName = self.edPath.text().strip()
@@ -365,6 +365,10 @@ class Form(Ui_Dialog, QWidget):
         except Exception as reason:
             print('Error:' + str(reason))
         return None
+
+    def doBatchGrayDirectLabel(self):
+        pass
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
