@@ -12,8 +12,7 @@ class GaCo:
     鄰居8點加自己投票定,本'田字'最sharp offset. 但offset只用於本點
     暫不處理SuperResolution, 能力不足
     """
-    Black = 1
-    White = 2
+    IsEdge = 1
     NotEdge = 0
     Dir9 = [[0, 0], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
     Dir8 = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
@@ -40,7 +39,6 @@ class GaCo:
 
     def getEdgePoint(self, data):
         print('Begin getEdgeList =====================')
-        # da = (np.array(data) > 127)  # 把 0- 127 黑False   128-254白 True
         da = np.array(data)
         for x in range(1, self.Wid):
             if x % 10 == 0:
@@ -52,44 +50,34 @@ class GaCo:
                     x1, y1 = x - 1, y - 1
                     c, up, left = da[x, y], da[x, y1], da[x1, y]
                     if c != up or c != left:
-                        self.markEdge(c, x, y)
+                        self.markEdge(x, y)
                         self.checkEdge(c, up, x, y1)
                         self.checkEdge(c, left, x1, y)
         c, right, down = da[0, 0], da[1, 0], da[0, 1]
         if c != down or c != right:
-            self.markEdge(c, 0, 0)
+            self.markEdge(0, 0)
             self.checkEdge(c, down, 0, 1)
             self.checkEdge(c, right, 1, 0)
         print('\nend of getEdgeList')
         return
 
-    def markEdge(self, c, x, y):
-        if c:
-            self.marked[x, y] = GaCo.White
-        else:
-            self.marked[x, y] = GaCo.Black
+    def markEdge(self, x, y):
+        self.marked[x, y] = GaCo.IsEdge
 
     def checkEdge(self, me, other, x, y):
         if me == other:  # 二點同色
             return False
-        if self.marked[x, y] != GaCo.NotEdge:  # 己被標記是edge
+        if self.marked[x, y] == GaCo.IsEdge:  # 己被標記是edge
             return False
-        self.markEdge(other, x, y)
+        self.markEdge(x, y)
 
     def valueEdge(self, x, y):
-        white, black = 0, 0
+        count = 0
         for x1 in range(x, x + 4):
             for y1 in range(y, y + 4):
-                c = self.marked[x1, y1]
-                if c == GaCo.NotEdge:
-                    continue
-                elif c == GaCo.White:
-                    white += 1
-                elif c == GaCo.Black:
-                    black += 1
-        if white > black:
-            return white + black * 2
-        return black + white * 2
+                if self.marked[x1, y1] == GaCo.IsEdge:
+                    count += 1
+        return count
 
     def evaluateDiv4Map(self, data):
         print("Begin valueDive4Map　============")
@@ -135,6 +123,7 @@ class GaCo:
 
     def setWorldData(self, x, y):
         # self.stride2內存的是16pixels 白邊+黑邊+較短的邊,所以不可能超過24
+        # 現在不分黑白, 所以不可能超過16
         self.worldData[x, y] = grayLevel = self.stride2[x, y] * 10
         x0, y0 = x // 2, y // 2
         if grayLevel == 0:
