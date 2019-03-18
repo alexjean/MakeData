@@ -4,7 +4,6 @@
 import sys
 from PyQt5.QtWidgets import *
 from Ui_mainWin import *
-#from DigiWorld import *
 from AnalogWorld import *
 from Point import Point
 import numpy as np
@@ -26,6 +25,7 @@ def Statistics(func):
         if not (stat is None):
             plt.plot(stat)
             plt.show()
+
     return wrapper
 
 
@@ -39,16 +39,16 @@ class Form(Ui_Dialog, QWidget):
         self.view.resize(w + 4, h + 4)
         self.view1.move(self.view.x() + w + 4, self.view.y())
         self.view1.resize(w + 4, h + 4)
-        self.view2.move(self.view.x()+2, self.view.y()+self.view.height() + 4)
-        self.view2.resize(w*2 + 4, h*2 + 4)
-        self.viewLarge.resize(w*4 + 4, h*4 + 4)
+        self.view2.move(self.view.x() + 2, self.view.y() + self.view.height() + 4)
+        self.view2.resize(w * 2 + 4, h * 2 + 4)
+        self.viewLarge.resize(w * 4 + 4, h * 4 + 4)
         self.viewLarge.move(self.view1.x() + w + 8, self.view.y())
 
         self.world = AnalogWorld(self.view, self.viewLarge, w, h)
-        self.loadedWorld = Div4World(self.view1, w, h)   # 給 loadData做檢查
+        self.loadedWorld = Div4World(self.view1, w, h)  # 給 loadData做檢查
         # self.world = DigiWorld(self.view, self.view1, self.viewLarge, w, h)
         self.loadedData = None
-        self.stride2World = World(self.view2, w*2, h*2)
+        self.stride2World = World(self.view2, w * 2, h * 2)
 
     def doCircle(self):
         x = self.world.Width // 2
@@ -77,9 +77,9 @@ class Form(Ui_Dialog, QWidget):
         self.world.repaint()
 
     def calcTrainLabel(self):
-        #self.world.calcAlphaLabel()
-        #self.world.calcBetaLabel()
-        self.world.calcGamaLabel(self.loadedWorld, self.stride2World)    # 算出來的TtrainData填到loadedWorld.Data驗証
+        # self.world.calcAlphaLabel()
+        # self.world.calcBetaLabel()
+        self.world.calcGamaLabel(self.loadedWorld, self.stride2World)  # 算出來的TtrainData填到loadedWorld.Data驗証
 
     def clearWorld(self):
         self.world.clearWorld()
@@ -155,13 +155,14 @@ class Form(Ui_Dialog, QWidget):
                 # data[x, y] = Form.newColor(co) * 50
                 data[x, y] = 0 if co < 40 else 150  # 1 2 3全顯示150
 
-    def randomLine(self):
+    def randomLine(self, colorList):
         x0 = random.randint(1, self.Wid - 2)
         y0 = random.randint(1, self.Hei - 2)
         x1 = random.randint(1, self.Wid - 2)
         y1 = random.randint(1, self.Hei - 2)
         wi = random.randint(10, 100)
-        co = 0 if random.randint(0, 2) == 0 else 254
+        co = colorList[random.randrange(0, len(colorList))]
+        # co = 0 if random.randint(0, 2) == 0 else 254
         if abs(y1 - y0) > abs(x1 - x0):
             for i in range(wi):
                 self.world.drawLine(Point(x0 + i, y0), Point(x1 + i, y1), co)
@@ -169,35 +170,54 @@ class Form(Ui_Dialog, QWidget):
             for i in range(wi):
                 self.world.drawLine(Point(x0, y0 + i), Point(x1, y1 + i), co)
 
-    def randomCircle(self):
+    def randomCircle(self, colorList):
         x = random.randint(1, self.Wid - 2)
         y = random.randint(1, self.Hei - 2)
         r = random.randint(10, self.Wid // 3)
-        co = 0 if random.randint(0, 2) == 0 else 254
+        co = colorList[random.randrange(0, len(colorList))]
+        # co = 0 if random.randint(0, 2) == 0 else 254
         self.world.drawCircle(x, y, r, co)
 
-    def doRandDraw(self):
+    def RandDraw(self, colorList=[0, 254, 254]):
         for no in range(30):
             if random.randint(0, 2) == 0:
-                self.randomCircle()
+                self.randomCircle(colorList)
             else:
-                self.randomLine()
+                self.randomLine(colorList)
         self.world.before_repaint()
         self.world.repaint()
 
+    def doRandDraw(self):
+        colorList = [0, 64, 128, 192, 254] if self.comboGrey.currentText().strip().lower() == 'grey' else [0, 254, 254]
+        self.RandDraw(colorList)
+
+
     def doPatch(self):
-        QMessageBox.information(self, "Info", "開始補足data目錄內未完成Generate!")
+        QMessageBox.information(None, "Info", "開始補足data目錄內未完成Generate!")
         dirs = os.listdir("data/")
         for di in dirs:
-            subdir = "data/"+di
+            subdir = "data/" + di
             if os.path.isdir(subdir):
                 sublist = os.listdir(subdir)
                 lenSub = len(sublist)
                 print("Dir<%s> Total %d " % (subdir, lenSub))
                 if lenSub < 1000:
-                    for i in range(lenSub-1 if lenSub > 0 else 0, 1000):
+                    for i in range(lenSub - 1 if lenSub > 0 else 0, 1000):
                         # 覆蓋最後一個, 沒完成可能最後一個也是壞的
                         self.generateOne(di, i)
+
+    def checkDataDir(self):
+        if not os.path.exists('data'):
+            os.mkdir('data')
+        pathName = self.edPath.text().strip()
+        dirName = "data/" + pathName
+        if os.path.exists(dirName):
+            QMessageBox.information(None, "Info", "目錄<" + dirName + ">己經存在, 請指定新的目錄名!")
+            return ''
+        else:
+            os.mkdir(dirName)
+            QMessageBox.information(None, "Info", "目錄<" + dirName + ">己建立, 開始創造訓練資料!")
+            return pathName
 
     def generateOne(self, pathName, i):
         self.leTrainFileName.setText(pathName + "/" + pathName)
@@ -209,18 +229,12 @@ class Form(Ui_Dialog, QWidget):
         QApplication.processEvents()
 
     @Statistics
-    def doBatchMonoCalcLabel(self):
-        if not os.path.exists('data'):
-            os.mkdir('data')
-        pathName = self.edPath.text().strip()
-        dirName = "data/"+pathName
-        if os.path.exists(dirName):
-            QMessageBox.information(self, "Info", "目錄<"+dirName+">己經存在, 請指定新的目錄名!")
-        else:
-            os.mkdir(dirName)
-            QMessageBox.information(self, "Info", "目錄<"+dirName+">己建立, 開始創造訓練資料!")
-            for i in range(1000):
-                self.generateOne(pathName, i)
+    def doBatchCalcLabel(self):
+        pathName = self.checkDataDir()
+        if pathName == '':
+            return None
+        for i in range(1000):
+            self.generateOne(pathName, i)
         return None
 
     def paddingNameClassNo(self, padding):
@@ -245,11 +259,11 @@ class Form(Ui_Dialog, QWidget):
         pathName = self.edPath.text().strip()
         dirName = "data/" + pathName
         if not os.path.exists(dirName):
-            QMessageBox.information(self, "Info", "目錄<"+dirName+">不存在, 請指定新的目錄名!")
+            QMessageBox.information(self, "Info", "目錄<" + dirName + ">不存在, 請指定新的目錄名!")
             return None
         files = os.listdir(dirName)
         batch = len(files)
-        self.loadData(dirName+'/'+files[0])
+        self.loadData(dirName + '/' + files[0])
         (h, w) = self.loadedData['data'].shape
         data = np.zeros([batch, 1, h, w], np.uint8)
         label = np.zeros([batch, h, w], np.uint8)
@@ -259,7 +273,7 @@ class Form(Ui_Dialog, QWidget):
         for fi in files:
             if not fi.lower().endswith('.npz'):
                 continue
-            self.loadData(dirName+'/'+fi)
+            self.loadData(dirName + '/' + fi)
             da = self.loadedData['data']
             la = self.loadedData['label']
             data[i, 0] = da.astype(np.uint8)
@@ -268,20 +282,20 @@ class Form(Ui_Dialog, QWidget):
                 for col in range(w):
                     l1 = la[row, col]
                     co = l1 & 0xff
-                    if co != 0:              # 0 太多了
-                        stat[co//10] += 1    # co是16點計邊 * 10來的
+                    if co != 0:  # 0 太多了
+                        stat[co // 10] += 1  # co是16點計邊 * 10來的
                     # 原本為保留grayLevel 0...3的編碼
-                    #x = (l1 >> 12) & 1
-                    #y = (l1 >> 8) & 1
-                    #b1 = Form.newColor(co) << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0
-                    #li0[row, col] = b1 & 0xff
-                    if co >= 40:                          # < 40 編碼 0
+                    # x = (l1 >> 12) & 1
+                    # y = (l1 >> 8) & 1
+                    # b1 = Form.newColor(co) << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0
+                    # li0[row, col] = b1 & 0xff
+                    if co >= 40:  # < 40 編碼 0
                         if classNo == 2:
                             li0[row, col] = 1
                         else:
                             x = (l1 >> 12) & 1
                             y = (l1 >> 8) & 1
-                            li0[row, col] = 2 * x + y + 1     # 有, 依位置編1..4  共5 classes
+                            li0[row, col] = 2 * x + y + 1  # 有, 依位置編1..4  共5 classes
 
             i = i + 1
         try:
@@ -325,14 +339,14 @@ class Form(Ui_Dialog, QWidget):
     def doTraining(self):
         fullName, classNo = self.paddingNameClassNo("Full")
         if not os.path.exists(fullName):
-            QMessageBox.information(self, "Info", "檔案" + fullName + " 不存在!")
+            QMessageBox.information(None, "Info", "檔案" + fullName + " 不存在!")
             return None
-        elif (not os.path.isfile(fullName)):
-            QMessageBox.information(self, "Info", "<" + fullName + "> 不是檔案!")
+        elif not os.path.isfile(fullName):
+            QMessageBox.information(None, "Info", "<" + fullName + "> 不是檔案!")
             return None
-        print("Loading data from "+fullName)
+        print("Loading data from " + fullName)
         loaded = np.load(fullName)
-        #data = loaded["data"].astype(float)/255.0
+        # data = loaded["data"].astype(float)/255.0
         data = loaded["data"]
         label = loaded["label"]
         n = len(data)
@@ -341,11 +355,11 @@ class Form(Ui_Dialog, QWidget):
         optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
         lossFunc = torch.nn.CrossEntropyLoss().cuda()
         for i in range(0, n, batch):
-            print("<%03d>" % (i//batch), end=' ', flush=True)
-            byteData = data[i:i+batch]
+            print("<%03d>" % (i // batch), end=' ', flush=True)
+            byteData = data[i:i + batch]
             x = torch.cuda.FloatTensor(byteData.astype(float) / 255.0)
             print('+', end=' ', flush=True)
-            y = torch.cuda.LongTensor(label[i:i+batch])
+            y = torch.cuda.LongTensor(label[i:i + batch])
             print('*', end=' ', flush=True)
             pred_y = net.forward(x)
             loss = lossFunc(pred_y, y)  # pred_y : FloatTensor(N,C,H,W)  where C = number of classes
@@ -365,9 +379,6 @@ class Form(Ui_Dialog, QWidget):
         except Exception as reason:
             print('Error:' + str(reason))
         return None
-
-    def doBatchGrayDirectLabel(self):
-        pass
 
 
 if __name__ == '__main__':

@@ -40,7 +40,8 @@ class GaCo:
 
     def getEdgePoint(self, data):
         print('Begin getEdgeList =====================')
-        da = (np.array(data) > 127)  # 把 0- 127 黑False   128-254白 True
+        # da = (np.array(data) > 127)  # 把 0- 127 黑False   128-254白 True
+        da = np.array(data)
         for x in range(1, self.Wid):
             if x % 10 == 0:
                 print("%3d" % x, end=' ', flush=True)

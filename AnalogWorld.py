@@ -138,9 +138,8 @@ class AnalogWorld(World):
         self.calcDiv4()
 
     def repaint(self):
-        self.div4World.repaint()
         super().repaint()
-
+        self.div4World.repaint()
     #       self.edgeWorld.repaint()
 
     def clearWorld(self):
