@@ -72,15 +72,11 @@ class GaCo:
         self.markEdge(x, y)
 
     def valueEdge(self, x, y):
-        count = 0
-        for x1 in range(x, x + 4):
-            for y1 in range(y, y + 4):
-                if self.marked[x1, y1] == GaCo.IsEdge:
-                    count += 1
-        return count
+        # IsEdge = 1 所以可用np.sum()
+        return np.sum(self.marked[x:x+4, y:y+4])
 
     def evaluateDiv4Map(self, data):
-        print("Begin valueDive4Map　============")
+        print("Begin valueDive4Map ============")
         w, h = self.Wid // 4, self.Hei // 4
         for x in range(w):
             if x % 20 == 0:
