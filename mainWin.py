@@ -49,6 +49,8 @@ class Form(Ui_Dialog, QWidget):
         # self.world = DigiWorld(self.view, self.view1, self.viewLarge, w, h)
         self.loadedData = None
         self.stride2World = World(self.view2, w * 2, h * 2)
+        # for Predict
+        self.net2Predict = None
 
     def doCircle(self):
         x = self.world.Width // 2
@@ -191,9 +193,12 @@ class Form(Ui_Dialog, QWidget):
         colorList = [0, 64, 128, 192, 254] if self.comboGrey.currentText().strip().lower() == 'grey' else [0, 254, 254]
         self.RandDraw(colorList)
 
+    @staticmethod
+    def MessageBox(msg):
+        QMessageBox.information(None, "Info", msg)
 
     def doPatch(self):
-        QMessageBox.information(None, "Info", "開始補足data目錄內未完成Generate!")
+        Form.MessageBox("開始補足data目錄內未完成Generate!")
         dirs = os.listdir("data/")
         for di in dirs:
             subdir = "data/" + di
@@ -212,11 +217,11 @@ class Form(Ui_Dialog, QWidget):
         pathName = self.edPath.text().strip()
         dirName = "data/" + pathName
         if os.path.exists(dirName):
-            QMessageBox.information(None, "Info", "目錄<" + dirName + ">己經存在, 請指定新的目錄名!")
+            Form.MessageBox("目錄<" + dirName + ">己經存在, 請指定新的目錄名!")
             return ''
         else:
             os.mkdir(dirName)
-            QMessageBox.information(None, "Info", "目錄<" + dirName + ">己建立, 開始創造訓練資料!")
+            Form.MessageBox("目錄<" + dirName + ">己建立, 開始創造訓練資料!")
             return pathName
 
     def generateOne(self, pathName, i):
@@ -259,7 +264,7 @@ class Form(Ui_Dialog, QWidget):
         pathName = self.edPath.text().strip()
         dirName = "data/" + pathName
         if not os.path.exists(dirName):
-            QMessageBox.information(None, "Info", "目錄<" + dirName + ">不存在, 請指定新的目錄名!")
+            Form.MessageBox("目錄<" + dirName + ">不存在, 請指定新的目錄名!")
             return None
         files = os.listdir(dirName)
         batch = len(files)
@@ -341,10 +346,10 @@ class Form(Ui_Dialog, QWidget):
     def doTraining(self):
         fullName, classNo = self.paddingNameClassNo("Full")
         if not os.path.exists(fullName):
-            QMessageBox.information(None, "Info", "檔案" + fullName + " 不存在!")
+            Form.MessageBox("檔案" + fullName + " 不存在!")
             return None
         elif not os.path.isfile(fullName):
-            QMessageBox.information(None, "Info", "<" + fullName + "> 不是檔案!")
+            Form.MessageBox("<" + fullName + "> 不是檔案!")
             return None
         print("Loading data from " + fullName)
         loaded = np.load(fullName)
@@ -353,7 +358,10 @@ class Form(Ui_Dialog, QWidget):
         label = loaded["label"]
         n = len(data)
         batch = 1
-        net = Neural.Net(classNo).cuda()
+        if self.net2Predict is None:
+            net = Neural.Net(classNo).cuda()
+        else:
+            net = self.net2Predict.cuda()
         optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
         lossFunc = torch.nn.CrossEntropyLoss().cuda()
         for i in range(0, n, batch):
@@ -376,11 +384,35 @@ class Form(Ui_Dialog, QWidget):
             QApplication.processEvents()
         try:
             netName, _ = self.paddingNameClassNo("Net")
-            np.savez_compressed(netName, net=net.cpu())
+            torch.save(net.cpu(), netName)
+            # np.savez_compressed(netName, net=net.cpu())
             print(netName + " write success!")
         except Exception as reason:
-            print('Error:' + str(reason))
+            Form.MessageBox('Error:' + str(reason))
         return None
+
+    def doGetParameters(self):
+        try:
+            netName, _ = self.paddingNameClassNo("Net")
+            self.net2Predict = torch.load(netName)
+            print(netName + " load success!")
+        except Exception as reason:
+            Form.MessageBox('Error:' + str(reason))
+
+    def doPredict(self):
+        if self.net2Predict is None:
+            Form.MessageBox("No Net to predict, Please GetParameters first!")
+            return
+        net = self.net2Predict.cuda()
+        if self.loadData(self.fileName()):
+            byteData = np.array([[self.loadedData['data']]])
+            x = torch.cuda.FloatTensor(byteData.astype(float) / 255.0)
+            pred_y = net.forward(x)
+            self.showPredict(byteData[0, 0], pred_y[0])    # batch = 1
+
+    def doClearParameters(self):
+        self.net2Predict = None
+        print("Net parameters cleared!")
 
 
 if __name__ == '__main__':
