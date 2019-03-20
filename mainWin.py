@@ -259,17 +259,17 @@ class Form(Ui_Dialog, QWidget):
         pathName = self.edPath.text().strip()
         dirName = "data/" + pathName
         if not os.path.exists(dirName):
-            QMessageBox.information(self, "Info", "目錄<" + dirName + ">不存在, 請指定新的目錄名!")
+            QMessageBox.information(None, "Info", "目錄<" + dirName + ">不存在, 請指定新的目錄名!")
             return None
         files = os.listdir(dirName)
         batch = len(files)
         self.loadData(dirName + '/' + files[0])
         (h, w) = self.loadedData['data'].shape
         data = np.zeros([batch, 1, h, w], np.uint8)
-        label = np.zeros([batch, h, w], np.uint8)
+        label2 = np.zeros([batch, h, w], np.uint8)
+        label5 = np.zeros([batch, h, w], np.uint8)
         i = 0
         stat = np.zeros([26], np.int32)
-        fullName, classNo = self.paddingNameClassNo("Full")
         for fi in files:
             if not fi.lower().endswith('.npz'):
                 continue
@@ -277,7 +277,8 @@ class Form(Ui_Dialog, QWidget):
             da = self.loadedData['data']
             la = self.loadedData['label']
             data[i, 0] = da.astype(np.uint8)
-            li0 = label[i]
+            l2i = label2[i]
+            l5i = label5[i]
             for row in range(h):
                 for col in range(w):
                     l1 = la[row, col]
@@ -290,16 +291,17 @@ class Form(Ui_Dialog, QWidget):
                     # b1 = Form.newColor(co) << (4 * x + 2 * y)         # 3=0.99   2=0.66  1=0.33  0 = 0
                     # li0[row, col] = b1 & 0xff
                     if co >= 40:  # < 40 編碼 0
-                        if classNo == 2:
-                            li0[row, col] = 1
-                        else:
-                            x = (l1 >> 12) & 1
-                            y = (l1 >> 8) & 1
-                            li0[row, col] = 2 * x + y + 1  # 有, 依位置編1..4  共5 classes
-
+                        l2i[row, col] = 1              # class 2
+                        x = (l1 >> 12) & 1
+                        y = (l1 >> 8) & 1
+                        l5i[row, col] = 2 * x + y + 1  # 有, 依位置編1..4  共5 classes
             i = i + 1
         try:
-            np.savez_compressed(fullName, data=data, label=label)
+            fullName = "data/Full" + pathName + "2.npz"
+            np.savez_compressed(fullName, data=data, label=label2)
+            print(fullName + " write success!")
+            fullName = "data/Full" + pathName + "5.npz"
+            np.savez_compressed(fullName, data=data, label=label5)
             print(fullName + " write success!")
         except Exception as reason:
             print('Error:' + str(reason))
