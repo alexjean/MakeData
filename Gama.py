@@ -17,13 +17,15 @@ class GaCo:
     Dir9 = [[0, 0], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
     Dir8 = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
 
-    def __init__(self, w, h):
-        self.marked = np.zeros((w, h), np.uint8)
+    def __init__(self, w, h, shinkFactor):
+        self.marked = np.zeros((w, h), np.uint16)
         self.Wid = w
         self.Hei = h
+        self.Factor = shinkFactor
+        self.stride2Factor = shinkFactor // 2
         # below variables  for evaluateStride2Map
-        self.W2 = w // 2 - 1
-        self.H2 = h // 2 - 1
+        self.W2 = w // self.stride2Factor - 1
+        self.H2 = h // self.stride2Factor - 1
         stride2dim = (self.W2, self.H2)
         self.stride2 = np.zeros(stride2dim, np.int16)
         self.worldData = None
@@ -38,11 +40,11 @@ class GaCo:
         QApplication.processEvents()
 
     def getEdgePoint(self, data):
-        print('Begin getEdgeList =====================')
+        print('Begin getEdgeList '+'=' * 31)
         da = np.array(data)
         for x in range(1, self.Wid):
             if x % 10 == 0:
-                print("%3d" % x, end=' ', flush=True)
+                print("%4d" % x, end=' ', flush=True)
                 if x % 100 == 0:
                     print(' ')
             for y in range(1, self.Hei):
@@ -72,17 +74,18 @@ class GaCo:
         self.markEdge(x, y)
 
     def valueEdge(self, x, y):
-        # IsEdge = 1 所以可用np.sum()
-        return np.sum(self.marked[x:x+4, y:y+4])
+        # IsEdge = 1 所以可用np.sum() , 現在6*6縮小, *10有可能大於255了
+        val = np.sum(self.marked[x:x+self.Factor, y:y+self.Factor])
+        return val if val < 255 else 255
 
     def evaluateDiv4Map(self, data):
-        print("Begin valueDive4Map ============")
-        w, h = self.Wid // 4, self.Hei // 4
+        print("Begin valueShrinkMap ============")
+        w, h = self.Wid // self.Factor, self.Hei // self.Factor
         for x in range(w):
             if x % 20 == 0:
                 GaCo.echo(x)
             for y in range(h):
-                data[x, y] = self.valueEdge(x * 4, y * 4) * 10
+                data[x, y] = self.valueEdge(x * self.Factor, y * self.Factor) * 10
         print("\ncompleted!")
 
     def evaluateStride2Map(self):
@@ -92,7 +95,7 @@ class GaCo:
             if x % 20 == 0:
                 GaCo.echo(x)
             for y in range(0, h2):
-                self.stride2[x, y] = self.valueEdge(x * 2, y * 2)  # 這個值拿來算Variance的,先不乘10
+                self.stride2[x, y] = self.valueEdge(x * self.stride2Factor, y * self.stride2Factor)  # 這個值拿來算Variance的,先不乘10
         print("\ncompleted!")
 
     def evaluateAllContrast(self):
@@ -180,7 +183,7 @@ class GaCo:
         self.evaluateStride2Map()      # data put in self.stride2
         self.evaluateAllContrast()
         print("Begin fill stride2world "+'='*42)
-        w, h = self.Wid // 4, self.Hei // 4
+        w, h = self.Wid // self.Factor, self.Hei // self.Factor
         stride2world.clearWorld()
         self.worldData = stride2world.Data
         self.trainLabel = div4World.trainLabel                        # 呼叫方初使己有 = np.zero((w,h),np.int16)
@@ -213,15 +216,15 @@ class GaCo:
         print("\ncompleted!")
         stride2world.repaint()
 
-    def stride2Label(self, stride2World, div4World):
-        w, h = self.Wid // 4, self.Hei // 4
-        label = div4World.trainLabel = np.zeros((w, h), np.uint16)
+#    def stride2Label(self, stride2World, div4World):
+#        w, h = self.Wid // self.Factor, self.Hei // self.Factor
+#        label = div4World.trainLabel = np.zeros((w, h), np.uint16)
         # uint16 highByte是offset,編碼如同 Gaco.Dir9
         # lowByte是GrayLevel
-        data = stride2World.Data
-        for x in range(2, w-2):
-            for y in range(2, h-2):
-                x1, y1 = x * 2, y * 2
+#        data = stride2World.Data
+#        for x in range(2, w-2):
+#            for y in range(2, h-2):
+#                x1, y1 = x * 2, y * 2
 
     def maxContrastPartial(self, x1, y1):
         maxVar, mX, mY = -1, x1, y1

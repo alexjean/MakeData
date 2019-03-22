@@ -35,20 +35,23 @@ class Form(Ui_Dialog, QWidget):
         self.setupUi(self)
         self.move(450, 40)
         w, h = 200, 200
-        self.Wid, self.Hei = w * 4, h * 4
+        self.shrinkFactor = 6
+        self.displayFactor = 2
+        largeFactor = self.shrinkFactor // self.displayFactor
+        self.Wid, self.Hei = w * self.shrinkFactor, h * self.shrinkFactor
         self.view.resize(w + 4, h + 4)
         self.view1.move(self.view.x() + w + 4, self.view.y())
         self.view1.resize(w + 4, h + 4)
         self.view2.move(self.view.x() + 2, self.view.y() + self.view.height() + 4)
         self.view2.resize(w * 2 + 4, h * 2 + 4)
-        self.viewLarge.resize(w * 4 + 4, h * 4 + 4)
-        self.viewLarge.move(self.view1.x() + w + 8, self.view.y())
+        self.viewLarge.resize(w * largeFactor + 4, h * largeFactor + 4)
+        self.viewLarge.move(self.view1.x() + w + 8, self.view.y()+2)
 
-        self.world = AnalogWorld(self.view, self.viewLarge, w, h)
-        self.loadedWorld = Div4World(self.view1, w, h)  # 給 loadData做檢查
+        self.world = AnalogWorld(self.view, self.viewLarge, w, h, shrinkFactor=self.shrinkFactor, displayFactor=self.displayFactor)
+        self.loadedWorld = LabeledWorld(self.view1, w, h)  # 給 loadData做檢查
         # self.world = DigiWorld(self.view, self.view1, self.viewLarge, w, h)
         self.loadedData = None
-        self.stride2World = World(self.view2, w * 2, h * 2)
+        self.stride2World = World(self.view2, w * 2, h * 2, displayFactor=1)
         # for Predict
         self.net2Predict = None
 
@@ -125,8 +128,7 @@ class Form(Ui_Dialog, QWidget):
             QApplication.processEvents()
             return True
         except Exception as reason:
-            strReason = str(reason)
-            print(strReason)
+            Form.MessageBox(str(reason))
             return False
 
     @staticmethod
@@ -242,13 +244,13 @@ class Form(Ui_Dialog, QWidget):
             self.generateOne(pathName, i)
         return None
 
-    def paddingNameClassNo(self, padding):
+    def paddingNameClassNo(self, padding, paddingTail="npz"):
         if self.comboClassNo.currentText().strip() == '5':
             classNo = 5
         else:
             classNo = 2
         pathName = self.edPath.text().strip()
-        fullName = "data/" + padding + pathName + str(classNo) + ".npz"
+        fullName = "data/" + padding + pathName + str(classNo) + "." + paddingTail
         return fullName, classNo
 
     @Statistics
@@ -344,7 +346,7 @@ class Form(Ui_Dialog, QWidget):
 
     @Statistics
     def doTraining(self):
-        fullName, classNo = self.paddingNameClassNo("Full")
+        fullName, classNo = self.paddingNameClassNo("Full", "npz")
         if not os.path.exists(fullName):
             Form.MessageBox("檔案" + fullName + " 不存在!")
             return None
@@ -383,7 +385,7 @@ class Form(Ui_Dialog, QWidget):
                 self.showPredict(byteData[0, 0], pred_y[0])
             QApplication.processEvents()
         try:
-            netName, _ = self.paddingNameClassNo("Net")
+            netName, _ = self.paddingNameClassNo("Net", "toh")
             torch.save(net.cpu(), netName)
             # np.savez_compressed(netName, net=net.cpu())
             print(netName + " write success!")
@@ -393,7 +395,7 @@ class Form(Ui_Dialog, QWidget):
 
     def doGetParameters(self):
         try:
-            netName, _ = self.paddingNameClassNo("Net")
+            netName, _ = self.paddingNameClassNo("Net", "toh")
             self.net2Predict = torch.load(netName)
             print(netName + " load success!")
         except Exception as reason:

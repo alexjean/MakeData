@@ -9,7 +9,7 @@ from Point import Point
 
 
 class World(QWidget):
-    def __init__(self, view, w, h, data=None):
+    def __init__(self, view, w, h, displayFactor=1, data=None):
         super().__init__(view, Qt.Widget)
         self.Width = w
         self.Height = h
@@ -17,7 +17,8 @@ class World(QWidget):
             self.Data = np.zeros([w, h], np.int32)
         else:
             self.Data = data
-        self.resize(w, h)
+        self.Factor = displayFactor
+        self.resize(w // self.Factor, h // self.Factor)
         self.move(2, 2)
 
     def repaint(self, *__args):
@@ -36,14 +37,29 @@ class World(QWidget):
 
     def drawScreen(self, qp):
         blank = QColor(0, 0, 0)
-        for x in range(self.Width):
-            for y in range(self.Height):
-                c = self.Data[x, y]
-                if c <= 0:
-                    qp.setPen(blank)
-                else:
-                    qp.setPen(QColor(c, c, c))
-                qp.drawPoint(x, y)
+        factor = self.Factor
+        if factor == 1:
+            for x in range(self.Width):
+                for y in range(self.Height):
+                    c = self.Data[x, y]
+                    if c <= 0:
+                        qp.setPen(blank)
+                    else:
+                        qp.setPen(QColor(c, c, c))
+                    qp.drawPoint(x, y)
+        else:
+            f2 = factor * factor
+            for x in range(0, self.Width // factor):
+                for y in range(0, self.Height // factor):
+                    x0, y0 = x * factor, y * factor
+                    c = np.sum(self.Data[x0:x0+factor, y0:y0+factor]) // f2
+                    if c <= 0:
+                        qp.setPen(blank)
+                    elif c <= 255:
+                        qp.setPen(QColor(c, c, c))
+                    else:
+                        print("Error RGB")
+                    qp.drawPoint(x, y)
 
     def drawLine(self, p1, p2, color=254):
         if p1.x == p2.x:
