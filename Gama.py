@@ -76,7 +76,7 @@ class GaCo:
     def valueEdge(self, x, y):
         # IsEdge = 1 所以可用np.sum() , 現在6*6縮小, *10有可能大於255了
         val = np.sum(self.marked[x:x+self.Factor, y:y+self.Factor])
-        return val if val < 255 else 255
+        return val if val < 25 else 25
 
     def evaluateDiv4Map(self, data):
         print("Begin valueShrinkMap ============")
