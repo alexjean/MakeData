@@ -82,8 +82,6 @@ class Form(Ui_Dialog, QWidget):
         self.world.repaint()
 
     def calcTrainLabel(self):
-        # self.world.calcAlphaLabel()
-        # self.world.calcBetaLabel()
         self.world.calcGamaLabel(self.loadedWorld, self.stride2World)  # 算出來的TtrainData填到loadedWorld.Data驗証
 
     def clearWorld(self):
@@ -365,7 +363,8 @@ class Form(Ui_Dialog, QWidget):
         else:
             net = self.net2Predict.cuda()
         optimizer = torch.optim.Adam(net.parameters(), lr=Neural.Net.LearningRate)
-        lossFunc = torch.nn.CrossEntropyLoss().cuda()
+        weight = torch.FloatTensor([1, 1] if classNo == 2 else [1, 2, 2, 2, 2])
+        lossFunc = torch.nn.CrossEntropyLoss(weight=weight).cuda()
         for i in range(0, n, batch):
             print("<%03d>" % (i // batch), end=' ', flush=True)
             byteData = data[i:i + batch]

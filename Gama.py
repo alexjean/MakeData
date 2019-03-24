@@ -216,16 +216,6 @@ class GaCo:
         print("\ncompleted!")
         stride2world.repaint()
 
-#    def stride2Label(self, stride2World, div4World):
-#        w, h = self.Wid // self.Factor, self.Hei // self.Factor
-#        label = div4World.trainLabel = np.zeros((w, h), np.uint16)
-        # uint16 highByte是offset,編碼如同 Gaco.Dir9
-        # lowByte是GrayLevel
-#        data = stride2World.Data
-#        for x in range(2, w-2):
-#            for y in range(2, h-2):
-#                x1, y1 = x * 2, y * 2
-
     def maxContrastPartial(self, x1, y1):
         maxVar, mX, mY = -1, x1, y1
         for di in GaCo.Dir9:

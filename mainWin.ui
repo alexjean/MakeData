@@ -230,7 +230,7 @@
     <item>
      <widget class="QLineEdit" name="edPath">
       <property name="text">
-       <string>Cll</string>
+       <string>E</string>
       </property>
      </widget>
     </item>

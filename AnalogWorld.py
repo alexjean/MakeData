@@ -28,8 +28,8 @@ class AnalogWorld(World):
         print("Width%s Height%s world%s created!" % (self.Width, self.Height, self))
 
     def calcGamaLabel(self, loadedWorld, stride2World):
-        w, h = self.div4World.Width, self.div4World.Height
-        gama = GaCo(w * self.shrinkFactor , h * self.shrinkFactor, shinkFactor=self.shrinkFactor)
+        w, h = self.div4World.Width * self.shrinkFactor, self.div4World.Height * self.shrinkFactor
+        gama = GaCo(w, h, shinkFactor=self.shrinkFactor)
         gama.getEdgePoint(self.Data)
         gama.evaluateDiv4Map(loadedWorld.Data)
         loadedWorld.repaint()
