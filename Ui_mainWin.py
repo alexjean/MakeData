@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWin.ui'
 #
-# Created by: PyQt5 UI code generator 5.12
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -14,14 +14,22 @@ class Ui_Dialog(object):
         Dialog.setObjectName("Dialog")
         Dialog.resize(1241, 842)
         Dialog.setWindowTitle("Make trainData for diffLayer lineDetector")
-        self.view = QtWidgets.QGraphicsView(Dialog)
+        self.view = QtWidgets.QLabel(Dialog)
         self.view.setGeometry(QtCore.QRect(10, 10, 204, 204))
+        self.view.setAutoFillBackground(False)
+        self.view.setFrameShape(QtWidgets.QFrame.Panel)
+        self.view.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.view.setObjectName("view")
-        self.viewLarge = QtWidgets.QGraphicsView(Dialog)
+        self.viewLarge = QtWidgets.QLabel(Dialog)
         self.viewLarge.setGeometry(QtCore.QRect(428, 10, 804, 804))
+        self.viewLarge.setFrameShape(QtWidgets.QFrame.Panel)
+        self.viewLarge.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.viewLarge.setScaledContents(True)
         self.viewLarge.setObjectName("viewLarge")
-        self.view1 = QtWidgets.QGraphicsView(Dialog)
+        self.view1 = QtWidgets.QLabel(Dialog)
         self.view1.setGeometry(QtCore.QRect(218, 10, 204, 204))
+        self.view1.setFrameShape(QtWidgets.QFrame.Panel)
+        self.view1.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.view1.setObjectName("view1")
         self.btnSave = QtWidgets.QPushButton(Dialog)
         self.btnSave.setGeometry(QtCore.QRect(180, 630, 51, 23))
@@ -36,8 +44,10 @@ class Ui_Dialog(object):
         self.btnLoad = QtWidgets.QPushButton(Dialog)
         self.btnLoad.setGeometry(QtCore.QRect(350, 630, 51, 23))
         self.btnLoad.setObjectName("btnLoad")
-        self.view2 = QtWidgets.QGraphicsView(Dialog)
+        self.view2 = QtWidgets.QLabel(Dialog)
         self.view2.setGeometry(QtCore.QRect(12, 218, 404, 404))
+        self.view2.setFrameShape(QtWidgets.QFrame.Panel)
+        self.view2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.view2.setObjectName("view2")
         self.btnBatchCalcLabel = QtWidgets.QPushButton(Dialog)
         self.btnBatchCalcLabel.setGeometry(QtCore.QRect(182, 660, 91, 31))
@@ -173,8 +183,8 @@ class Ui_Dialog(object):
         self.label_2.setText(_translate("Dialog", "Batch on"))
         self.edPath.setText(_translate("Dialog", "E"))
         self.btnMergeData.setText(_translate("Dialog", "MergeData"))
-        self.comboClassNo.setItemText(0, _translate("Dialog", "2"))
-        self.comboClassNo.setItemText(1, _translate("Dialog", "5"))
+        self.comboClassNo.setItemText(0, _translate("Dialog", "5"))
+        self.comboClassNo.setItemText(1, _translate("Dialog", "2"))
         self.label.setText(_translate("Dialog", "<html><head/><body><p>Classes</p></body></html>"))
         self.comboGrey.setItemText(0, _translate("Dialog", "Grey"))
         self.comboGrey.setItemText(1, _translate("Dialog", "Mono"))

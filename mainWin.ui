@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string notr="true">Make trainData for diffLayer lineDetector</string>
   </property>
-  <widget class="QGraphicsView" name="view">
+  <widget class="QLabel" name="view">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -22,8 +22,17 @@
      <height>204</height>
     </rect>
    </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Panel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
   </widget>
-  <widget class="QGraphicsView" name="viewLarge">
+  <widget class="QLabel" name="viewLarge">
    <property name="geometry">
     <rect>
      <x>428</x>
@@ -32,8 +41,17 @@
      <height>804</height>
     </rect>
    </property>
+   <property name="frameShape">
+    <enum>QFrame::Panel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
   </widget>
-  <widget class="QGraphicsView" name="view1">
+  <widget class="QLabel" name="view1">
    <property name="geometry">
     <rect>
      <x>218</x>
@@ -41,6 +59,12 @@
      <width>204</width>
      <height>204</height>
     </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Panel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
    </property>
   </widget>
   <widget class="QPushButton" name="btnSave">
@@ -95,7 +119,7 @@
     <string>Load</string>
    </property>
   </widget>
-  <widget class="QGraphicsView" name="view2">
+  <widget class="QLabel" name="view2">
    <property name="geometry">
     <rect>
      <x>12</x>
@@ -103,6 +127,12 @@
      <width>404</width>
      <height>404</height>
     </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Panel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
    </property>
   </widget>
   <widget class="QPushButton" name="btnBatchCalcLabel">
@@ -260,12 +290,12 @@
       </property>
       <item>
        <property name="text">
-        <string>2</string>
+        <string>5</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>5</string>
+        <string>2</string>
        </property>
       </item>
      </widget>

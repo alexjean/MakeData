@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 from Point import Point
 
 
-class World(QWidget):
+class World(QLabel):
     def __init__(self, view, w, h, displayFactor=1, data=None):
         super().__init__(view, Qt.Widget)
         self.Width = w
@@ -18,10 +18,17 @@ class World(QWidget):
         else:
             self.Data = data
         self.Factor = displayFactor
+        if displayFactor != 1:
+            self.setScaledContents(True)
         self.resize(w // self.Factor, h // self.Factor)
         self.move(2, 2)
 
     def repaint(self, *__args):
+        w, h = self.Width, self.Height
+        img = self.Data.astype(np.uint8)
+        qimg = QImage(img.data, h, w, 1 * w, QImage.Format_Grayscale8)
+        pixmap = QPixmap.fromImage(qimg)
+        self.setPixmap(pixmap)
         super().repaint()
         QApplication.processEvents()
 
@@ -29,11 +36,11 @@ class World(QWidget):
         self.Data[:, :] = 0
         self.repaint()
 
-    def paintEvent(self, paintEvent):
-        qp = QPainter()
-        qp.begin(self)
-        self.drawScreen(qp)
-        qp.end()
+#    def paintEvent(self, paintEvent):
+#        qp = QPainter()
+#        qp.begin(self)
+#        self.drawScreen(qp)
+#        qp.end()
 
     def drawScreen(self, qp):
         blank = QColor(0, 0, 0)
