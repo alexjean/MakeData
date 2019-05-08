@@ -2,6 +2,8 @@
 # @Time    : 2018/11/5 下午 06:22
 # @Author  : AlexJean
 import numpy as np
+import numba as nb
+from numba import njit, int16, int32, int64, uint16
 from PyQt5.QtWidgets import QApplication
 
 
@@ -16,6 +18,7 @@ class GaCo:
     NotEdge = 0
     Dir9 = [[0, 0], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
     Dir8 = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
+    Dir8x2 = [[2, 0], [2, 2], [0, 2], [-2, 2], [-2, 0], [-2, -2], [0, -2], [2, -2]]
 
     def __init__(self, w, h, shinkFactor):
         self.marked = np.zeros((w, h), np.uint16)
@@ -41,6 +44,8 @@ class GaCo:
 
     def getEdgePoint(self, data):
         print('Begin getEdgeList '+'=' * 31)
+        _getEdgePoint(self.Wid, self.Hei, self.marked, data)
+        """
         da = np.array(data)
         for x in range(1, self.Wid):
             if x % 10 == 0:
@@ -61,7 +66,7 @@ class GaCo:
             self.checkEdge(c, down, 0, 1)
             self.checkEdge(c, right, 1, 0)
         print('\nend of getEdgeList')
-        return
+        """
 
     def markEdge(self, x, y):
         self.marked[x, y] = GaCo.IsEdge
@@ -100,6 +105,8 @@ class GaCo:
 
     def evaluateAllContrast(self):
         print("Begin valueAllContrast " + '=' * 56)
+        _evaluateAllContrast(self.W2, self.H2, self.contrastData, self.stride2)
+        """
         w2, h2 = self.W2, self.H2
         for x in range(2, w2-2):
             if x % 10 == 0:
@@ -107,8 +114,10 @@ class GaCo:
                 if x % 200 == 0:
                     print(' ')
             for y in range(2, h2-2):
-                self.contrastData[x, y] = self.contrast(x, y)
+                self.contrastData[x, y] = _contrast(self.stride2, x, y)
+                # self.contrastData[x, y] = self.contrast(x, y)
         print("\ncompleted!")
+        """
 
     def renewForbidden(self, x, y):
         maxLevel, pos = 0, 0
@@ -238,17 +247,62 @@ class GaCo:
     # x,y 算二次, 加其他8方向,湊成10
     def contrast(self, x, y):
         v = self.stride2
-        direction = [[2, 0], [2, 2], [0, 2], [-2, 2], [-2, 0], [-2, -2], [0, -2], [2, -2]]
         u = v[x, y] * 2
-        for di in direction:
+        for di in GaCo.Dir8x2:
             u += v[x + di[0], y + di[1]]
-        var = GaCo.variance(v[x, y] * 10, u) * 2
-        for di in direction:
-            var += GaCo.variance(v[x+di[0], y + di[1]] * 10, u)
+        var = _variance(v[x, y] * 10, u) * 2
+        for di in GaCo.Dir8x2:
+            var += _variance(v[x+di[0], y + di[1]] * 10, u)
         return var
 
-    # int pow2
-    @staticmethod
-    def variance(val, u):
-        z = val - u
-        return z * z
+
+@njit(int32(int32, int32))
+def _variance(val, u):
+    z = val - u
+    return nb.int32(z * z)
+
+
+@njit(int32(int16[:, :], int64, int64))
+def _contrast(v, x, y):
+    u = nb.int32(v[x, y] * 2)
+    dir8x2 = [[2, 0], [2, 2], [0, 2], [-2, 2], [-2, 0], [-2, -2], [0, -2], [2, -2]]
+    for di in dir8x2:
+        u += v[x + di[0], y + di[1]]
+    var = nb.int32(_variance(v[x, y] * 10, u) * 2)
+    for di in dir8x2:
+        var += _variance(v[x + di[0], y + di[1]] * 10, u)
+    return var
+
+
+@njit((int64, int64, int32[:, :], int16[:, :]))
+def _evaluateAllContrast(w2, h2, contrastData, stride2):
+    for x in range(2, w2 - 2):
+        for y in range(2, h2 - 2):
+            contrastData[x, y] = _contrast(stride2, x, y)
+    print("completed!")
+
+
+@njit(nb.void(int64, int64, uint16[:, :], int32[:, :]))
+def _getEdgePoint(w, h, marked, da):
+    isEdge = nb.uint16(1)
+    notEdge = nb.uint16(0)
+    for x in range(1, w):
+        for y in range(1, h):
+            if marked[x, y] == notEdge:
+                x1, y1 = x - 1, y - 1
+                c, up, left = da[x, y], da[x, y1], da[x1, y]
+                if c != up or c != left:
+                    marked[x, y] = isEdge
+                    if (c != up) and (marked[x, y1] != isEdge):
+                        marked[x, y1] = isEdge
+                    if (c != left) and (marked[x1, y] != isEdge):
+                        marked[x1, y] = isEdge
+    c, right, down = da[0, 0], da[1, 0], da[0, 1]
+    if c != down:
+        marked[0, 0] = isEdge
+        marked[0, 1] = isEdge
+    if c != right:
+        marked[0, 0] = isEdge
+        marked[1, 0] = isEdge
+    print('\nend of getEdgeList')
+

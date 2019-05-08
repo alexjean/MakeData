@@ -47,7 +47,8 @@ class Form(Ui_Dialog, QWidget):
         self.viewLarge.resize(w * largeFactor + 4, h * largeFactor + 4)
         self.viewLarge.move(self.view1.x() + w + 8, self.view.y()+2)
 
-        self.world = AnalogWorld(self.view, self.viewLarge, w, h, shrinkFactor=self.shrinkFactor, displayFactor=self.displayFactor)
+        self.world = AnalogWorld(self.view, self.viewLarge, w, h, shrinkFactor=self.shrinkFactor,
+                                 displayFactor=self.displayFactor)
         self.loadedWorld = LabeledWorld(self.view1, w, h)  # 給 loadData做檢查
         # self.world = DigiWorld(self.view, self.view1, self.viewLarge, w, h)
         self.loadedData = None
@@ -227,8 +228,10 @@ class Form(Ui_Dialog, QWidget):
     def generateOne(self, pathName, i):
         self.leTrainFileName.setText(pathName + "/" + pathName)
         self.sboxTrainFileName.setValue(i)
-        self.clearWorld()
+        self.world.clearWorld()
         self.doRandDraw()
+        self.loadedWorld.clearWorld()
+        self.stride2World.clearWorld()
         self.calcTrainLabel()
         self.doSaveData()
         QApplication.processEvents()
@@ -417,7 +420,9 @@ class Form(Ui_Dialog, QWidget):
 
 
 if __name__ == '__main__':
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QApplication(sys.argv)
+    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     win = Form()
     win.show()
     sys.exit(app.exec())
